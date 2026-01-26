@@ -50,3 +50,5 @@ dmypy.json
 
 # Artifacts
 python/artifacts/
+
+*.log
