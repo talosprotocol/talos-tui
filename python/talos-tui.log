@@ -1,0 +1,37 @@
+2026-01-26 00:34:12,494 [INFO] talos_tui.app: Starting handshake with Gateway: http://localhost:8000 and Audit: http://localhost:8001
+2026-01-26 00:34:12,494 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:12,504 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:34:12,504 [WARNING] talos_tui.app: Handshake attempt 1 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:34:12,504 [INFO] talos_tui.app: Retrying in 1.0s...
+2026-01-26 00:34:13,505 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:13,506 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)] for http://localhost:8000/healthz
+2026-01-26 00:34:13,506 [WARNING] talos_tui.app: Handshake attempt 2 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)]
+2026-01-26 00:34:13,506 [INFO] talos_tui.app: Retrying in 2.0s...
+2026-01-26 00:34:15,507 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:15,509 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:34:15,509 [WARNING] talos_tui.app: Handshake attempt 3 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:34:15,509 [INFO] talos_tui.app: Retrying in 4.0s...
+2026-01-26 00:34:19,510 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:19,512 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)] for http://localhost:8000/healthz
+2026-01-26 00:34:19,512 [WARNING] talos_tui.app: Handshake attempt 4 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)]
+2026-01-26 00:34:19,512 [INFO] talos_tui.app: Retrying in 8.0s...
+2026-01-26 00:34:27,513 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:27,516 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:34:27,516 [WARNING] talos_tui.app: Handshake attempt 5 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:34:27,516 [INFO] talos_tui.app: Retrying in 10.0s...
+2026-01-26 00:34:37,518 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:37,521 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:34:37,521 [WARNING] talos_tui.app: Handshake attempt 6 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:34:37,521 [INFO] talos_tui.app: Retrying in 10.0s...
+2026-01-26 00:34:47,523 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:47,526 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:34:47,526 [WARNING] talos_tui.app: Handshake attempt 7 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:34:47,526 [INFO] talos_tui.app: Retrying in 10.0s...
+2026-01-26 00:34:57,528 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:34:57,531 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:34:57,531 [WARNING] talos_tui.app: Handshake attempt 8 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:34:57,531 [INFO] talos_tui.app: Retrying in 10.0s...
+2026-01-26 00:35:07,532 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/healthz
+2026-01-26 00:35:07,535 [ERROR] talos_tui.adapters.gateway_http: Gateway Network Error: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] for http://localhost:8000/healthz
+2026-01-26 00:35:07,535 [WARNING] talos_tui.app: Handshake attempt 9 failed: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-01-26 00:35:07,535 [INFO] talos_tui.app: Retrying in 10.0s...
