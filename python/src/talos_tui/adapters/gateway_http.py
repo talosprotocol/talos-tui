@@ -55,7 +55,7 @@ class HttpGatewayAdapter:
         return VersionInfo(**data)
 
     async def get_health(self) -> Health:
-        data = await self._get("healthz")
+        data = await self._get("health/ready")
         return Health(**data)
 
     async def get_metrics_summary(self) -> MetricsSummary:
