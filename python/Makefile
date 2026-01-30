@@ -36,5 +36,8 @@ clean:
 build: clean
 	$(PYTHON) -m build
 
-run:
+stop:
+	-pkill -f talos-tui || true
+
+run: stop
 	$(TALOS_TUI)

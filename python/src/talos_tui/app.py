@@ -1,9 +1,10 @@
 import asyncio
 import os
 import logging
+from pathlib import Path
 from typing import Optional, Any
 
-# Configure logging early and REDIRECT to file to keep terminal clean for Textual
+# Configure logging early and REDIRECT to file 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
 
@@ -22,27 +23,24 @@ from textual.screen import Screen
 from textual.binding import Binding
 from textual.theme import Theme
 
-from talos_tui.runtime.supervisor import Supervisor
+from talos_tui.core.state import StateStore
+from talos_tui.core.coordinator import Coordinator, TuiState
+from talos_tui.core.contracts import ContractValidator
+
 from talos_tui.adapters.gateway_http import HttpGatewayAdapter
 from talos_tui.adapters.audit_http import HttpAuditAdapter
 from talos_tui.adapters.mock import MockGatewayAdapter, MockAuditAdapter
+
 from talos_tui.ui.screens.dashboard import StatusDashboard
 from talos_tui.ui.screens.audit import AuditViewer
+from talos_tui.ui.screens.startup import StartupScreen
 from talos_tui.ports.errors import TuiError
 
 # Constants
 GATEWAY_URL = os.getenv("TALOS_GATEWAY_URL", "http://localhost:8000")
 AUDIT_URL = os.getenv("TALOS_AUDIT_URL", "http://localhost:8001")
 USE_MOCK = os.getenv("TALOS_TUI_MOCK", "0") == "1"
-CONTRACTS_MAJOR_VERSION = "1" # Supported major version
-POLL_INTERVAL_SEC = 2.0  # 0.5Hz polling to start safe
-
-class StartupScreen(Screen):
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Connecting to Talos Network...", id="status_label"),
-            LoadingIndicator()
-        )
+CONTRACTS_ROOT = Path(__file__).parent.parent.parent.parent.parent / "contracts"
 
 TALOS_COMMAND_CENTER = Theme(
     name="talos-command-center",
@@ -59,14 +57,6 @@ TALOS_COMMAND_CENTER = Theme(
     dark=True,
 )
 
-class ErrorScreen(Screen):
-    def __init__(self, message: str):
-        self.message = message
-        super().__init__()
-
-    def compose(self) -> ComposeResult:
-        yield Container(Label(f"CRITICAL ERROR: {self.message}", classes="error-msg"))
-
 class TalosTuiApp(App):
     TITLE = "TALOS COMMAND CENTER"
     CSS_PATH = "ui/talos.tcss"
@@ -79,110 +69,68 @@ class TalosTuiApp(App):
 
     def __init__(self) -> None:
         super().__init__()
-        self.supervisor = Supervisor()
+        self.store = StateStore()
+        self.validator = ContractValidator(CONTRACTS_ROOT / "schemas")
+        
         self.gateway: Any = None
         self.audit: Any = None
-        self.dashboard_screen = StatusDashboard()
-        self.audit_screen = AuditViewer()
+            
+        self.coordinator: Optional[Coordinator] = None
+        self.dashboard_screen = StatusDashboard(self.store)
+        self.audit_screen = AuditViewer(self.store)
 
     async def on_mount(self) -> None:
         self.register_theme(TALOS_COMMAND_CENTER)
         self.theme = "talos-command-center"
-        await self.supervisor.start()
         
         if USE_MOCK:
+            from talos_tui.adapters.mock import MockGatewayAdapter, MockAuditAdapter
             self.gateway = MockGatewayAdapter()
             self.audit = MockAuditAdapter()
-            self.sub_title = "MODE: MOCK / DEMO"
         else:
-            self.gateway = HttpGatewayAdapter(GATEWAY_URL, self.supervisor.session)
-            self.audit = HttpAuditAdapter(AUDIT_URL, self.supervisor.session)
+            import aiohttp
+            # Shared session for all adapters
+            self._session = aiohttp.ClientSession()
+            self.gateway = HttpGatewayAdapter(GATEWAY_URL, self._session, validator=self.validator)
+            self.audit = HttpAuditAdapter(AUDIT_URL, self._session, validator=self.validator)
+        
+        self.coordinator = Coordinator(
+            self.store, 
+            self.gateway, 
+            self.audit,
+            contracts_version_gate="1"
+        )
         
         self.install_screen(self.dashboard_screen, name="dashboard")
         self.install_screen(self.audit_screen, name="audit")
         
-        self.push_screen(StartupScreen())
-        self.supervisor.spawn(self.perform_handshake(), scope="handshake")
-
-    async def perform_handshake(self) -> None:
-        logger.info(f"Starting handshake with Gateway: {GATEWAY_URL} and Audit: {AUDIT_URL}")
-        max_retries = 10
-        initial_delay = 1.0
-        max_delay = 10.0
+        self.push_screen(StartupScreen(self.store))
+        await self.coordinator.start()
         
-        for attempt in range(max_retries):
-            try:
-                # 1. Check Health first
-                gw_health = await self.gateway.get_health()
-                audit_health = await self.audit.get_health()
-                
-                if not gw_health.ok or not audit_health.ok:
-                    raise TuiError(kind="NOT_READY", message="One or more services reported unhealthy")
+        # Monitor coordinator state to trigger screen transitions
+        self.set_interval(0.5, self._check_transitions)
 
-                # 2. Get Versions
-                gw_ver = await self.gateway.get_version()
-                audit_ver = await self.audit.get_version()
-                
-                gw_major = gw_ver.contracts_version.split(".")[0]
-                if gw_major != CONTRACTS_MAJOR_VERSION:
-                    raise TuiError(kind="INCOMPATIBLE", message=f"Gateway contracts version {gw_ver.contracts_version} mismatch")
-                    
-                self.sub_title = f"GW: {gw_ver.service_version} | Audit: {audit_ver.service_version}"
-                
-                # Start polling loops
-                self.supervisor.spawn(self.poll_metrics(), scope="app_global")
-                self.supervisor.spawn(self.poll_audit(), scope="app_global")
-                
-                self.switch_screen("dashboard")
-                logger.info("Handshake successful")
-                return # Success!
-                
-            except TuiError as e:
-                if e.kind == "INCOMPATIBLE":
-                    self.push_screen(ErrorScreen(f"INCOMPATIBLE CONTRACTS: {e.message}"))
-                    return
-                logger.warning(f"Handshake attempt {attempt + 1} failed: {e.message}")
-            except Exception as e:
-                logger.warning(f"Handshake attempt {attempt + 1} failed with error: {str(e)}")
-            
-            # Exponential backoff: delay = initial * 2^attempt, capped at max_delay
-            delay = min(max_delay, initial_delay * (2 ** attempt))
-            logger.info(f"Retrying in {delay:.1f}s...")
-            await asyncio.sleep(delay)
-            
-        self.push_screen(ErrorScreen(f"Connection Failed after {max_retries} attempts"))
-
-    async def poll_metrics(self) -> None:
-        while True:
-            try:
-                metrics = await self.gateway.get_metrics_summary()
-                self.dashboard_screen.update_metrics(metrics.dict())
-            except Exception:
-                pass # Silent fail on poll, retry next tick
-            await asyncio.sleep(POLL_INTERVAL_SEC)
-
-    async def poll_audit(self) -> None:
-        cursor = None
-        while True:
-            try:
-                page = await self.audit.list_events(limit=50, before=cursor)
-                if page.items:
-                    self.audit_screen.add_events(page.items)
-                    # Simple cursor logic for now
-                    if page.next_cursor:
-                        cursor = page.next_cursor
-            except Exception:
-                pass
-            await asyncio.sleep(POLL_INTERVAL_SEC)
+    def _check_transitions(self) -> None:
+        if not self.coordinator:
+            return
+        if self.coordinator.state == TuiState.RUNNING and self.screen.__class__.__name__ == "StartupScreen":
+            logger.info("Transitioning to dashboard")
+            self.pop_screen()
+            self.switch_screen("dashboard")
 
     def action_show_dashboard(self) -> None:
-        self.switch_screen("dashboard")
+        if self.coordinator and self.coordinator.state in (TuiState.RUNNING, TuiState.DEGRADED):
+            self.switch_screen("dashboard")
 
     def action_show_audit(self) -> None:
-        self.switch_screen("audit")
+        if self.coordinator and self.coordinator.state in (TuiState.RUNNING, TuiState.DEGRADED):
+            self.switch_screen("audit")
 
     async def on_unmount(self) -> None:
-        await self.supervisor.stop()
+        if self.coordinator:
+            await self.coordinator.stop()
+        if not USE_MOCK and hasattr(self, "_session"):
+            await self._session.close()
 
 def main() -> None:
     app = TalosTuiApp()
