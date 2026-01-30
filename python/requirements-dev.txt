@@ -5,3 +5,4 @@ aioresponses
 build
 mypy
 ruff
+types-jsonschema

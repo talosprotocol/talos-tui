@@ -26,7 +26,7 @@ class ContractValidator:
             raise FileNotFoundError(f"Schema {schema_path} not found at {full_path}")
             
         with open(full_path, "r") as f:
-            schema = json.load(f)
+            schema: Dict[str, Any] = json.load(f)
             self._cache[schema_path] = schema
             return schema
 
