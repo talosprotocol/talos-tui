@@ -73,6 +73,7 @@ warn_return_any = true
 [[tool.mypy.overrides]]
 module = ["jsonschema", "jsonschema.*"]
 ignore_missing_imports = true
+disable_error_code = ["import-untyped"]
 
 [[tool.mypy.overrides]]
 # Allow looser typing for tests if needed, but keeping strict for now
