@@ -1,6 +1,7 @@
 pytest>=7.0.0
 pytest-asyncio
 pytest-cov
+aioresponses
 build
 mypy
 ruff

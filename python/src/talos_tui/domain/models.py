@@ -35,9 +35,10 @@ class Session(ViewModel):
     created_at: Optional[str] = None
 
 class AuditEvent(ViewModel):
-    id: str
+    id: str = Field(alias="event_id")
     ts: str
-    event_type: str
+    event_type: str = Field(alias="schema_id")
+    outcome: str = "OK"
     payload: Dict[str, Any] = Field(default_factory=dict)
 
 class AuditPage(ViewModel):

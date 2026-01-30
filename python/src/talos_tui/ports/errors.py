@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Optional
 
-ErrorKind = Literal["NETWORK", "TIMEOUT", "AUTH", "INCOMPATIBLE", "BAD_RESPONSE", "PAYLOAD_TOO_LARGE", "CANCELLED", "NOT_READY", "UNKNOWN"]
+ErrorKind = Literal["NETWORK", "TIMEOUT", "AUTH", "INCOMPATIBLE", "BAD_RESPONSE", "PAYLOAD_TOO_LARGE", "CANCELLED", "NOT_READY", "CONTRACT", "RATE_LIMIT", "UNKNOWN"]
 
 @dataclass(frozen=True)
 class TuiError(Exception):

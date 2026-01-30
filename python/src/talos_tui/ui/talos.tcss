@@ -30,15 +30,36 @@ Footer {
     margin: 2;
 }
 
-/* Dashboard Styles */
-#dashboard_container {
-    padding: 1 2;
+#top-bar {
+    height: 3;
+    width: 100%;
+    margin-bottom: 1;
 }
 
-Grid {
-    grid-size: 2 2;
-    grid-gutter: 2;
-    padding: 1;
+.title {
+    color: $primary;
+    text-style: bold;
+}
+
+.stale-warning {
+    color: $error;
+    background: $surface;
+    text-style: bold;
+    padding: 0 1;
+    margin-left: 2;
+}
+
+#health-bar {
+    height: 1;
+    width: 100%;
+    margin-top: 1;
+    background: $surface;
+    padding: 0 1;
+}
+
+.health-label {
+    text-style: bold;
+    color: $text-muted;
 }
 
 MetricCard {

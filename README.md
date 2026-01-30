@@ -4,11 +4,13 @@ A terminal-based user interface for monitoring and inspecting the Talos Protocol
 
 ![Talos TUI](https://placeholder-image-url.com) (*Screenshot placeholder*)
 
-## Features (v1)
+## Features (v2 Redesign)
 
-*   **Status Dashboard**: Real-time view of connected peers, sessions, and network latency.
-*   **Audit Viewer**: Read-only inspection of the audit log with pagination.
-*   **Safe Execution**: Read-only payload, redacted secrets, and strict version handshake.
+*   **Resilient State Machine**: Formal coordinator with exponential backoff, jitter, and absolute handshake budgets.
+*   **Mechanized Contract Safety**: Runtime JSON Schema validation for all audit events and a startup version gate.
+*   **Pure UI Projections**: Centralized `StateStore` with reactive dashboard and audit viewer, ensuring UI stability.
+*   **Health & Freshness Tracking**: Real-time status bar and stale-data indicators for all service dependencies.
+*   **Safe Execution**: Redacted secrets (REGEX-based), hard timeouts, and payload size capping.
 
 ## Installation
 
@@ -30,8 +32,8 @@ Ensure you have a running Gateway and Audit service.
 talos-tui
 
 # Custom Endpoints
-export TALOS_GATEWAY_URL="http://localhost:8000"
-export TALOS_AUDIT_URL="http://localhost:8001"
+export TALOS_GATEWAY_URL="http://gateway:8000"
+export TALOS_AUDIT_URL="http://auditService:8001"
 talos-tui
 ```
 
@@ -39,24 +41,23 @@ talos-tui
 
 ### Architecture
 
-This project follows a strict **Hexagonal Architecture**:
+The project implements a **Resilient Hexagonal Architecture**:
 
-*   **`domain`**: Pure Python data models (View State). No imports allowed from adapters/ui.
-*   **`ports`**: Protocol definitions for external interactions.
-*   **`adapters`**: Implementations of ports (HTTP, SDK).
-*   **`ui`**: Textual screens and widgets.
+*   **`domain`**: Pure data models (View State).
+*   **`ports`**: Protocol definitions for external services and configuration.
+*   **`adapters`**: Resilient HTTP implementations with built-in retries and contract validation.
+*   **`core`**: The brain of the TUI—contains the `StateStore` (reducer) and `Coordinator` (state machine).
+*   **`ui`**: Textual screens that act as pure projections of the `StateStore`.
 
 ### Running Tests
 
 ```bash
-# Unit Tests
-pytest python/tests/unit
+cd tools/talos-tui/python
+# Unit Tests (Resilience & State Logic)
+pytest tests/unit
 
-# Architecture Gate
-python3 python/tests/architecture/test_import_rules.py
-
-# Performance Budget
-python3 python/tests/test_perf_budget.py
+# Integration Tests (Network Safety & Mock Probes)
+pytest tests/integration
 ```
 
 ### Developer Convenience
