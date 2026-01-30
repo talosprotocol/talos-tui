@@ -1,11 +1,11 @@
 from __future__ import annotations
-from textual.app import ComposeResult
-from textual.screen import Screen
-from textual.widgets import Label, LoadingIndicator, Button
-from textual.containers import Vertical, Horizontal, Container
-from textual.message import Message
+from textual.app import ComposeResult # type: ignore
+from textual.screen import Screen # type: ignore
+from textual.widgets import Label, LoadingIndicator, Button # type: ignore
+from textual.containers import Vertical, Horizontal, Container # type: ignore
+from textual.message import Message # type: ignore
 
-from talos_tui.core.state import StateStore, SourceState
+from talos_tui.core.state import StateStore, SourceState # type: ignore
 
 class StartupScreen(Screen):
     """

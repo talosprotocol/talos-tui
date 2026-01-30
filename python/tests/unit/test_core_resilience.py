@@ -3,9 +3,9 @@ import time
 import asyncio
 from unittest.mock import MagicMock, AsyncMock
 
-from talos_tui.core.state import StateStore, HealthUpdated, ErrorOccurred, TuiEvent
-from talos_tui.core.coordinator import Coordinator, TuiState
-from talos_tui.ports.errors import TuiError
+from talos_tui.core.state import StateStore, HealthUpdated, ErrorOccurred, TuiEvent # type: ignore[import-not-found, import-untyped]
+from talos_tui.core.coordinator import Coordinator, TuiState # type: ignore[import-not-found, import-untyped]
+from talos_tui.ports.errors import TuiError # type: ignore[import-not-found, import-untyped]
 
 class TestStateStore:
     def test_health_update_reducer(self):
