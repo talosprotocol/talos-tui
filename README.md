@@ -2,15 +2,13 @@
 
 A terminal-based user interface for monitoring and inspecting the Talos Protocol network.
 
-![Talos TUI](https://placeholder-image-url.com) (*Screenshot placeholder*)
-
 ## Features (v2 Redesign)
 
-*   **Resilient State Machine**: Formal coordinator with exponential backoff, jitter, and absolute handshake budgets.
-*   **Mechanized Contract Safety**: Runtime JSON Schema validation for all audit events and a startup version gate.
-*   **Pure UI Projections**: Centralized `StateStore` with reactive dashboard and audit viewer, ensuring UI stability.
-*   **Health & Freshness Tracking**: Real-time status bar and stale-data indicators for all service dependencies.
-*   **Safe Execution**: Redacted secrets (REGEX-based), hard timeouts, and payload size capping.
+- **Resilient State Machine**: Formal coordinator with exponential backoff, jitter, and absolute handshake budgets.
+- **Mechanized Contract Safety**: Runtime JSON Schema validation for all audit events and a startup version gate.
+- **Pure UI Projections**: Centralized `StateStore` with reactive dashboard and audit viewer, ensuring UI stability.
+- **Health & Freshness Tracking**: Real-time status bar and stale-data indicators for all service dependencies.
+- **Safe Execution**: Redacted secrets (REGEX-based), hard timeouts, and payload size capping.
 
 ## Installation
 
@@ -30,8 +28,11 @@ Ensure you have a running Gateway and Audit service.
 ```bash
 # Minimal run (defaults to localhost)
 talos-tui
+```
 
-# Custom Endpoints
+### Custom Endpoints
+
+```bash
 export TALOS_GATEWAY_URL="http://gateway:8000"
 export TALOS_AUDIT_URL="http://auditService:8001"
 talos-tui
@@ -43,11 +44,11 @@ talos-tui
 
 The project implements a **Resilient Hexagonal Architecture**:
 
-*   **`domain`**: Pure data models (View State).
-*   **`ports`**: Protocol definitions for external services and configuration.
-*   **`adapters`**: Resilient HTTP implementations with built-in retries and contract validation.
-*   **`core`**: The brain of the TUI—contains the `StateStore` (reducer) and `Coordinator` (state machine).
-*   **`ui`**: Textual screens that act as pure projections of the `StateStore`.
+- **`domain`**: Pure data models (View State).
+- **`ports`**: Protocol definitions for external services and configuration.
+- **`adapters`**: Resilient HTTP implementations with built-in retries and contract validation.
+- **`core`**: The brain of the TUI—contains the `StateStore` (reducer) and `Coordinator` (state machine).
+- **`ui`**: Textual screens that act as pure projections of the `StateStore`.
 
 ### Running Tests
 
@@ -88,11 +89,13 @@ make lint
 ### Docker
 
 Build the image:
+
 ```bash
 docker build -t talos-tui -f tools/talos-tui/Dockerfile tools/talos-tui
 ```
 
 Run container:
+
 ```bash
 docker run -it --rm \
   -e TALOS_GATEWAY_URL="http://host.docker.internal:8000" \
@@ -103,12 +106,14 @@ docker run -it --rm \
 ### Helm
 
 Install the chart:
+
 ```bash
 helm install talos-tui tools/talos-tui/helm/talos-tui \
   --set env.TALOS_GATEWAY_URL="http://gateway-service:8000"
 ```
 
 To access the TUI in the cluster:
+
 ```bash
 # Find pod name
 kubectl get pods -l app.kubernetes.io/name=talos-tui
