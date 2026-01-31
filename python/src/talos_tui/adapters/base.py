@@ -131,7 +131,8 @@ class BaseHttpAdapter:
                          raise TuiError(kind="PAYLOAD_TOO_LARGE", message=f"Response exceeds limit {self.max_response_size}")
 
                     data = await resp.json()
-                    return redact_value(data)
+                    # We assume JSON response is a dict for our use cases
+                    return redact_value(data) # type: ignore
 
             except asyncio.TimeoutError:
                 logger.warning(f"Timeout on {url} (Attempt {attempt})")
@@ -153,7 +154,7 @@ class BaseHttpAdapter:
 
         raise TuiError(kind="NETWORK", message="Max retry attempts reached", retryable=True)
 
-    async def _backoff(self, attempt: int):
+    async def _backoff(self, attempt: int) -> None:
         # Exponential backoff: base * 2^(attempt-1) + jitter
         base_delay = 0.5
         max_delay = 5.0

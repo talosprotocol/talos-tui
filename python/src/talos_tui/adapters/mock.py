@@ -9,14 +9,14 @@ from talos_tui.domain.models import Health, MetricsSummary, Peer, Session, Versi
 class MockGatewayAdapter:
     async def get_version(self) -> VersionInfo:
         return VersionInfo(
-            service_version="1.2.3-mock",
+            version="1.2.3-mock",  # alias for service_version
             git_sha="deadbeef",
             contracts_version="1.0.0",
             api_version="v1"
         )
 
     async def get_health(self) -> Health:
-        return Health(ok=True, detail="Running in Mock Mode")
+        return Health(status="ok", detail="Running in Mock Mode")
 
     async def get_metrics_summary(self) -> MetricsSummary:
         return MetricsSummary(
@@ -35,7 +35,7 @@ class MockGatewayAdapter:
 class MockAuditAdapter:
     async def get_version(self) -> VersionInfo:
         return VersionInfo(
-            service_version="1.2.3-mock",
+            version="1.2.3-mock",
             git_sha="deadbeef",
             contracts_version="1.0.0",
             api_version="v1"
@@ -47,9 +47,10 @@ class MockAuditAdapter:
         count = random.randint(0, 5)
         for i in range(count):
             items.append(AuditEvent(
-                id=f"evt-{random.randint(1000, 9999)}",
+                event_id=f"evt-{random.randint(1000, 9999)}",
                 ts=datetime.now(timezone.utc).isoformat(),
-                event_type=random.choice(["login", "logout", "config_change", "key_rotation"]),
+                schema_id=random.choice(["login", "logout", "config_change", "key_rotation"]),
+                outcome="OK",
                 payload={"mock": True, "value": random.randint(1, 100)}
             ))
         

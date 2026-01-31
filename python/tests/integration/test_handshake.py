@@ -11,10 +11,10 @@ async def test_handshake_success():
     app.audit = AsyncMock()
     
     app.gateway.get_version.return_value = VersionInfo(
-        service_version="1.0.0", git_sha="abc", contracts_version="1.0.0", api_version="v1"
+        version="1.0.0", git_sha="abc", contracts_version="1.0.0", api_version="v1"
     )
     app.audit.get_version.return_value = VersionInfo(
-        service_version="1.0.0", git_sha="abc", contracts_version="1.0.0", api_version="v1"
+        version="1.0.0", git_sha="abc", contracts_version="1.0.0", api_version="v1"
     )
     
     # Run logic directly (bypassing full UI loop for unit test speed)
