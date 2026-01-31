@@ -1,5 +1,5 @@
 import pytest
-from talos_tui.adapters.redaction import redact_dict
+from talos_tui.adapters.base import redact_dict
 
 def test_redact_denylist_keys():
     data = {"secret": "my_password", "public": "visible"}

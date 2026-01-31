@@ -1,46 +1,38 @@
 import pytest
 import asyncio
-from unittest.mock import AsyncMock
-from talos_tui.runtime.supervisor import Supervisor
+from unittest.mock import MagicMock
+from talos_tui.core.coordinator import Coordinator
+from talos_tui.core.state import StateStore
 
 @pytest.mark.asyncio
-async def test_supervisor_lifecycle():
-    sup = Supervisor()
-    await sup.start()
-    assert sup.session is not None
-    assert sup.active_task_count() == 0
-    await sup.stop()
-    with pytest.raises(RuntimeError):
-        sup.session
-
-@pytest.mark.asyncio
-async def test_supervisor_spawn_and_cancel_scope():
-    sup = Supervisor()
-    await sup.start()
+async def test_coordinator_lifecycle():
+    store = StateStore()
+    gateway = MagicMock()
+    audit = MagicMock()
+    coord = Coordinator(store, gateway, audit)
     
-    # Create a long-running dummy task
+    # Start (mocks handshake loop)
+    # We don't want the infinite loop to block, so we'll mock spawn or make handshake exit
+    coord.spawn = MagicMock() 
+    
+    await coord.start()
+    assert coord.state.name == "HANDSHAKE_GATEWAY"
+    
+    await coord.stop()
+    assert coord._stop_event.is_set()
+
+@pytest.mark.asyncio
+async def test_coordinator_task_management():
+    store = StateStore()
+    coord = Coordinator(store, MagicMock(), MagicMock())
+    
+    # Use the real spawn method
     async def dummy():
-        await asyncio.sleep(10)
-        
-    sup.spawn(dummy(), scope="test_scope")
-    assert sup.active_task_count() == 1
+        await asyncio.sleep(0.01)
     
-    await sup.cancel_scope("test_scope")
-    # Cancellation happens via callback, give it a tick
-    await asyncio.sleep(0)  
-    assert sup.active_task_count() == 0
+    task = coord.spawn(dummy())
+    assert task in coord._tasks
+    assert not task.done()
     
-    await sup.stop()
-
-@pytest.mark.asyncio
-async def test_supervisor_stop_cancels_all():
-    sup = Supervisor()
-    await sup.start()
-    
-    sup.spawn(asyncio.sleep(10), scope="A")
-    sup.spawn(asyncio.sleep(10), scope="B")
-    assert sup.active_task_count() == 2
-    
-    await sup.stop()
-    await asyncio.sleep(0)
-    assert sup.active_task_count() == 0
+    await asyncio.sleep(0.02)
+    assert task not in coord._tasks  # Should be discarded on done
