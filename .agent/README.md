@@ -1,4 +1,5 @@
 # Agent workspace: tools/talos-tui
+> **Project**: tools/talos-tui
 
 This folder contains agent-facing context, tasks, workflows, and planning artifacts for this submodule.
 
