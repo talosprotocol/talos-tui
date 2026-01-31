@@ -2,7 +2,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from enum import Enum, auto
-from typing import Any, Dict, Optional, List, Set
+from typing import Any, Dict, Optional, List, Set, Coroutine, cast
 
 from talos_tui.core.state import (
     StateStore, 
@@ -49,7 +49,7 @@ class Coordinator:
         self.contracts_version_gate = contracts_version_gate
         self.max_handshake_attempts = max_handshake_attempts
         
-        self._tasks: Set[asyncio.Task] = set()
+        self._tasks: Set[asyncio.Task[Any]] = set()
         self._handshake_attempts: Dict[str, int] = {"gateway": 0, "audit": 0}
         self._stop_event = asyncio.Event()
 
@@ -65,8 +65,8 @@ class Coordinator:
         if new_state == TuiState.FATAL:
              self.store.is_fatal = True
 
-    def spawn(self, coro) -> asyncio.Task:
-        task = asyncio.create_task(coro)
+    def spawn(self, coro: Coroutine[Any, Any, Any]) -> asyncio.Task[Any]:
+        task: asyncio.Task[Any] = asyncio.create_task(coro)
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
         return task

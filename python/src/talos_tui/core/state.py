@@ -109,4 +109,4 @@ class StateStore:
         s = getattr(self, source)
         if s.last_updated_at == 0:
             return float('inf')
-        return time.time() - s.last_updated_at
+        return float(time.time() - s.last_updated_at)
