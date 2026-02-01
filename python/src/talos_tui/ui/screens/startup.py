@@ -1,20 +1,20 @@
 from __future__ import annotations
-from textual.app import ComposeResult # type: ignore
-from textual.screen import Screen # type: ignore
-from textual.widgets import Label, LoadingIndicator, Button # type: ignore
-from textual.containers import Vertical, Horizontal, Container # type: ignore
-from textual.message import Message # type: ignore
+from textual.app import ComposeResult  # type: ignore
+from textual.screen import Screen  # type: ignore
+from textual.widgets import Label, LoadingIndicator, Button  # type: ignore
+from textual.containers import Vertical, Horizontal, Container  # type: ignore
 
-from talos_tui.core.state import StateStore, SourceState # type: ignore
+from talos_tui.core.state import StateStore, SourceState  # type: ignore
+
 
 class StartupScreen(Screen):
     """
-    StartupScreen: 
+    StartupScreen:
     - Real-time status for Gateway and Audit.
     - Retry budget display.
     - Fatal error remediation hints.
     """
-    
+
     DEFAULT_CSS = """
     StartupScreen {
         align: center middle;
@@ -55,7 +55,7 @@ class StartupScreen(Screen):
         with Container(classes="startup-panel"):
             yield Label("TALOS COMMAND CENTER", id="title")
             yield Label("Initializing Secure Links...", id="subtitle")
-            
+
             with Vertical(id="status-container"):
                 yield Horizontal(
                     Label("Gateway: ", classes="label"),
@@ -64,14 +64,16 @@ class StartupScreen(Screen):
                 )
                 yield Horizontal(
                     Label("Audit Log: ", classes="label"),
-                    Label("WAITING", id="audit-status", classes="status-pending"),
+                    Label(
+                        "WAITING", id="audit-status", classes="status-pending"
+                    ),
                     classes="status-row"
                 )
-            
+
             yield Label("", id="error-hint", classes="error-hint")
-            
+
             yield LoadingIndicator(id="loading")
-            
+
             with Horizontal(id="actions", variant="hidden"):
                 yield Button("Retry", id="retry-btn", variant="primary")
                 yield Button("Quit", id="quit-btn", variant="error")
@@ -83,14 +85,16 @@ class StartupScreen(Screen):
         """Refresh UI from store state"""
         self._update_source("gw-status", self.store.gateway)
         self._update_source("audit-status", self.store.audit)
-        
+
         if self.store.global_error:
-            self.query_one("#error-hint", Label).update(self.store.global_error)
+            self.query_one("#error-hint", Label).update(
+                self.store.global_error
+            )
             # Switch to fatal UI if needed
             if self.store.is_fatal:
-                 self.query_one("#loading").display = False
+                self.query_one("#loading").display = False
         else:
-             self.query_one("#error-hint", Label).update("")
+            self.query_one("#error-hint", Label).update("")
 
     def _update_source(self, widget_id: str, state: SourceState) -> None:
         label = self.query_one(f"#{widget_id}", Label)

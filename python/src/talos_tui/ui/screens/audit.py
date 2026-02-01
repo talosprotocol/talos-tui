@@ -7,6 +7,7 @@ from rich.text import Text
 
 from talos_tui.core.state import StateStore
 
+
 class AuditViewer(Screen):
     def __init__(self, store: StateStore):
         super().__init__()
@@ -30,7 +31,7 @@ class AuditViewer(Screen):
         events = self.store.audit_events
         if len(events) == self._last_event_count:
             return
-            
+
         table = self.query_one(DataTable)
         # For simplicity in this redraw, we check if we need to sync
         # In a real app we might only append, but since store is the truth:
@@ -43,18 +44,22 @@ class AuditViewer(Screen):
         # Reverse to add to table (which appends)
         for e in reversed(new_events):
             sev_char, color = self._get_severity(e.get("outcome", "OK"))
-            
-            display_type = (e.get("event_type") or e.get("schema_id") or "unknown").replace("talos.", "")
+
+            display_type = (
+                e.get("event_type") or e.get("schema_id") or "unknown"
+            ).replace("talos.", "")
             eid = e.get("event_id") or e.get("id") or "unknown"
             ts = e.get("ts") or "unknown"
 
             table.add_row(
                 Text(sev_char, style=f"bold {color}"),
                 Text(ts, style=color),
-                Text(f"{display_type} ({e.get('outcome', 'OK')})", style=color),
+                Text(
+                    f"{display_type} ({e.get('outcome', 'OK')})", style=color
+                ),
                 Text(eid, style="dim")
             )
-            
+
         self._last_event_count = len(events)
         table.scroll_end(animate=False)
 
