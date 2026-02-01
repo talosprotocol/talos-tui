@@ -1,10 +1,11 @@
 from __future__ import annotations
-import asyncio
 import random
-from typing import Sequence, Optional, Dict, Any, List
-from datetime import datetime, timezone
+from typing import Sequence, Optional
 
-from talos_tui.domain.models import Health, MetricsSummary, Peer, Session, VersionInfo, AuditPage, AuditEvent
+from talos_tui.domain.models import (
+    Health, MetricsSummary, Peer, Session, VersionInfo, AuditPage, AuditEvent
+)
+
 
 class MockGatewayAdapter:
     async def get_version(self) -> VersionInfo:
@@ -27,10 +28,13 @@ class MockGatewayAdapter:
         )
 
     async def list_peers(self) -> Sequence[Peer]:
-        return [Peer(peer_id=f"peer-{i}", services=["gateway"]) for i in range(5)]
+        return [
+            Peer(peer_id=f"peer-{i}", services=["gateway"]) for i in range(5)
+        ]
 
     async def list_sessions(self) -> Sequence[Session]:
         return [Session(session_id=f"sess-{i}") for i in range(3)]
+
 
 class MockAuditAdapter:
     async def get_version(self) -> VersionInfo:
@@ -41,19 +45,23 @@ class MockAuditAdapter:
             api_version="v1"
         )
 
-    async def list_events(self, limit: int, before: Optional[str]) -> AuditPage:
+    async def list_events(
+        self, limit: int, before: Optional[str]
+    ) -> AuditPage:
         # Generate random events
         items = []
         count = random.randint(0, 5)
         for i in range(count):
             items.append(AuditEvent(
                 event_id=f"evt-{random.randint(1000, 9999)}",
-                ts=datetime.now(timezone.utc).isoformat(),
-                schema_id=random.choice(["login", "logout", "config_change", "key_rotation"]),
+                ts="2023-01-01T00:00:00Z",  # fixed for mock
+                schema_id=random.choice(
+                    ["login", "logout", "config_change", "key_rotation"]
+                ),
                 outcome="OK",
                 payload={"mock": True, "value": random.randint(1, 100)}
             ))
-        
+
         return AuditPage(
             items=items,
             next_cursor="mock_cursor",
