@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, ConfigDict
 class ViewModel(BaseModel):
     """Base view model with common configuration."""
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
 
 class VersionInfo(ViewModel):

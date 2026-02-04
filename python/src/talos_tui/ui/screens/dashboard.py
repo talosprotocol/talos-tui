@@ -33,7 +33,7 @@ class MetricCard(Container):
         self.value = val
 
 
-class StatusDashboard(Screen):
+class StatusDashboard(Screen[None]):
     def __init__(self, store: StateStore):
         super().__init__()
         self.store = store

@@ -1,13 +1,16 @@
+"""
+Startup screen for Talos TUI.
+"""
 from __future__ import annotations
-from textual.app import ComposeResult  # type: ignore
-from textual.screen import Screen  # type: ignore
-from textual.widgets import Label, LoadingIndicator, Button  # type: ignore
-from textual.containers import Vertical, Horizontal, Container  # type: ignore
+from textual.app import ComposeResult
+from textual.screen import Screen
+from textual.widgets import Label, LoadingIndicator, Button
+from textual.containers import Vertical, Horizontal, Container
 
-from talos_tui.core.state import StateStore, SourceState  # type: ignore
+from talos_tui.core.state import StateStore, SourceState
 
 
-class StartupScreen(Screen):
+class StartupScreen(Screen[None]):
     """
     StartupScreen:
     - Real-time status for Gateway and Audit.
@@ -42,7 +45,7 @@ class StartupScreen(Screen):
     }
     .error-hint {
         color: $warning;
-        italic: True;
+        text-style: italic;
         margin-top: 1;
     }
     """
@@ -74,11 +77,12 @@ class StartupScreen(Screen):
 
             yield LoadingIndicator(id="loading")
 
-            with Horizontal(id="actions", variant="hidden"):
+            with Horizontal(id="actions"):
                 yield Button("Retry", id="retry-btn", variant="primary")
                 yield Button("Quit", id="quit-btn", variant="error")
 
     def on_mount(self) -> None:
+        """Start status polling."""
         self.set_interval(0.5, self.update_status)
 
     def update_status(self) -> None:

@@ -18,7 +18,7 @@ ErrorKind = Literal[
 ]
 
 
-@dataclass(frozen=True)
+@dataclass
 class TuiError(Exception):
     """Base class for TUI-specific errors."""
 

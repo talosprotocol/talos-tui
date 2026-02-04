@@ -134,7 +134,7 @@ class Coordinator:
             self.store.reduce(
                 HealthUpdated(
                     source=source,
-                    is_ok=health.ok,
+                    is_ok=health.ok(),
                     status_msg="READY" if health.ok else "NOT_READY"
                 )
             )
