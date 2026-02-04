@@ -5,7 +5,7 @@ from talos_tui.adapters.gateway_http import HttpGatewayAdapter
 from talos_tui.ports.errors import TuiError
 
 @pytest.mark.asyncio
-async def test_gateway_get_version_success():
+async def test_gateway_get_version_success() -> None:
     mock_resp = AsyncMock(spec=ClientResponse)
     mock_resp.status = 200
     mock_resp.content_length = 500
@@ -17,7 +17,7 @@ async def test_gateway_get_version_success():
     }
     
     mock_session = AsyncMock(spec=ClientSession)
-    mock_session.get.return_value.__aenter__.return_value = mock_resp
+    mock_session.request.return_value.__aenter__.return_value = mock_resp
     
     adapter = HttpGatewayAdapter("http://test", mock_session)
     version = await adapter.get_version()
@@ -26,13 +26,13 @@ async def test_gateway_get_version_success():
     assert version.contracts_version == "1.0.0"
 
 @pytest.mark.asyncio
-async def test_gateway_payload_too_large():
+async def test_gateway_payload_too_large() -> None:
     mock_resp = AsyncMock(spec=ClientResponse)
     mock_resp.status = 200
     mock_resp.content_length = 2_000_000 # > 1MB limit
     
     mock_session = AsyncMock(spec=ClientSession)
-    mock_session.get.return_value.__aenter__.return_value = mock_resp
+    mock_session.request.return_value.__aenter__.return_value = mock_resp
     
     adapter = HttpGatewayAdapter("http://test", mock_session)
     
@@ -42,17 +42,17 @@ async def test_gateway_payload_too_large():
     assert exc.value.kind == "PAYLOAD_TOO_LARGE"
 
 @pytest.mark.asyncio
-async def test_gateway_bad_status():
+async def test_gateway_bad_status() -> None:
     mock_resp = AsyncMock(spec=ClientResponse)
     mock_resp.status = 500
     
     mock_session = AsyncMock(spec=ClientSession)
-    mock_session.get.return_value.__aenter__.return_value = mock_resp
+    mock_session.request.return_value.__aenter__.return_value = mock_resp
     
     adapter = HttpGatewayAdapter("http://test", mock_session)
     
     with pytest.raises(TuiError) as exc:
         await adapter.get_health()
         
-    assert exc.value.kind == "BAD_RESPONSE"
+    assert exc.value.kind == "NETWORK"
     assert exc.value.retryable is True

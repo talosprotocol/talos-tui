@@ -1,3 +1,6 @@
+"""
+Talos TUI Application Entry Point.
+"""
 import os
 import logging
 from pathlib import Path
@@ -55,7 +58,11 @@ TALOS_COMMAND_CENTER = Theme(
 )
 
 
-class TalosTuiApp(App):
+class TalosTuiApp(App[None]):
+    """
+    Main TUI Application class.
+    Manages the lifecycle, screens, and coordination logic.
+    """
     TITLE = "TALOS COMMAND CENTER"
     CSS_PATH = "ui/talos.tcss"
 
@@ -77,7 +84,12 @@ class TalosTuiApp(App):
         self.dashboard_screen = StatusDashboard(self.store)
         self.audit_screen = AuditViewer(self.store)
 
+        if not USE_MOCK:
+            # Type hint for mypy, though we import aiohttp later
+            self._session: Any = None
+
     async def on_mount(self) -> None:
+        """Initialize theme and start coordinator."""
         self.register_theme(TALOS_COMMAND_CENTER)
         self.theme = "talos-command-center"
 
@@ -85,7 +97,7 @@ class TalosTuiApp(App):
             self.gateway = MockGatewayAdapter()
             self.audit = MockAuditAdapter()
         else:
-            import aiohttp
+            import aiohttp  # pylint: disable=import-outside-toplevel
             # Shared session for all adapters
             self._session = aiohttp.ClientSession()
             self.gateway = HttpGatewayAdapter(
@@ -112,17 +124,19 @@ class TalosTuiApp(App):
         self.set_interval(0.5, self._check_transitions)
 
     def _check_transitions(self) -> None:
+        """Check for state changes to trigger navigation."""
         if not self.coordinator:
             return
         if (
-            self.coordinator.state == TuiState.RUNNING
-            and self.screen.__class__.__name__ == "StartupScreen"
+            self.coordinator.state == TuiState.RUNNING and
+            self.screen.__class__.__name__ == "StartupScreen"
         ):
             logger.info("Transitioning to dashboard")
             self.pop_screen()
             self.switch_screen("dashboard")
 
     def action_show_dashboard(self) -> None:
+        """Switch to dashboard screen."""
         if self.coordinator and self.coordinator.state in (
             TuiState.RUNNING,
             TuiState.DEGRADED,
@@ -130,6 +144,7 @@ class TalosTuiApp(App):
             self.switch_screen("dashboard")
 
     def action_show_audit(self) -> None:
+        """Switch to audit screen."""
         if self.coordinator and self.coordinator.state in (
             TuiState.RUNNING,
             TuiState.DEGRADED,
@@ -137,6 +152,7 @@ class TalosTuiApp(App):
             self.switch_screen("audit")
 
     async def on_unmount(self) -> None:
+        """Cleanup resources on exit."""
         if self.coordinator:
             await self.coordinator.stop()
         if not USE_MOCK and hasattr(self, "_session"):
@@ -144,5 +160,6 @@ class TalosTuiApp(App):
 
 
 def main() -> None:
+    """Entry point for the application."""
     app = TalosTuiApp()
     app.run()

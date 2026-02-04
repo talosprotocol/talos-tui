@@ -1,3 +1,6 @@
+"""
+Architecture tests to enforce import boundaries.
+"""
 import ast
 from pathlib import Path
 
@@ -23,6 +26,7 @@ BANNED_IN_PORTS_PREFIXES = (
     "talos_tui.ui",
 )
 
+
 def _imports_in_file(path: Path) -> list[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"))
     imports: list[str] = []
@@ -35,14 +39,19 @@ def _imports_in_file(path: Path) -> list[str]:
                 imports.append(node.module)
     return imports
 
+
 def _assert_no_banned(dir_path: Path, banned_prefixes: tuple[str, ...]) -> None:
     for py in dir_path.rglob("*.py"):
         for imp in _imports_in_file(py):
             if any(imp.startswith(p) for p in banned_prefixes):
                 raise AssertionError(f"{py} imports banned module '{imp}'")
 
-def test_domain_has_no_infra_imports():
+
+def test_domain_has_no_infra_imports() -> None:
+    """Ensure domain layer does not import infrastructure."""
     _assert_no_banned(DOMAIN, BANNED_IN_DOMAIN_PREFIXES)
 
-def test_ports_have_no_infra_imports():
+
+def test_ports_have_no_infra_imports() -> None:
+    """Ensure ports layer does not import infrastructure."""
     _assert_no_banned(PORTS, BANNED_IN_PORTS_PREFIXES)

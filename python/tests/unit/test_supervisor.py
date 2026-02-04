@@ -5,7 +5,7 @@ from talos_tui.core.coordinator import Coordinator
 from talos_tui.core.state import StateStore
 
 @pytest.mark.asyncio
-async def test_coordinator_lifecycle():
+async def test_coordinator_lifecycle() -> None:
     store = StateStore()
     gateway = MagicMock()
     audit = MagicMock()
@@ -13,7 +13,7 @@ async def test_coordinator_lifecycle():
     
     # Start (mocks handshake loop)
     # We don't want the infinite loop to block, so we'll mock spawn or make handshake exit
-    coord.spawn = MagicMock() 
+    coord.spawn = MagicMock()   # type: ignore[method-assign]
     
     await coord.start()
     assert coord.state.name == "HANDSHAKE_GATEWAY"
@@ -22,12 +22,12 @@ async def test_coordinator_lifecycle():
     assert coord._stop_event.is_set()
 
 @pytest.mark.asyncio
-async def test_coordinator_task_management():
+async def test_coordinator_task_management() -> None:
     store = StateStore()
     coord = Coordinator(store, MagicMock(), MagicMock())
     
     # Use the real spawn method
-    async def dummy():
+    async def dummy() -> None:
         await asyncio.sleep(0.01)
     
     task = coord.spawn(dummy())

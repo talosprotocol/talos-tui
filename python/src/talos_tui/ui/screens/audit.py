@@ -1,4 +1,6 @@
+"""Module for the AuditViewer screen in the Talos TUI."""
 from __future__ import annotations
+
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Header, Footer, DataTable, Label
@@ -8,13 +10,15 @@ from rich.text import Text
 from talos_tui.core.state import StateStore
 
 
-class AuditViewer(Screen):
+class AuditViewer(Screen[None]):
+    """Screen for viewing audit events logs."""
     def __init__(self, store: StateStore):
         super().__init__()
         self.store = store
         self._last_event_count = 0
 
     def compose(self) -> ComposeResult:
+        """Compose the screen interface."""
         yield Header()
         with Container(id="audit_container"):
             yield Label("AUDIT EVENT LOG", classes="title")
@@ -22,6 +26,7 @@ class AuditViewer(Screen):
         yield Footer()
 
     def on_mount(self) -> None:
+        """Initialize the data table columns and start the refresh interval."""
         table = self.query_one(DataTable)
         table.add_columns("!", "Timestamp", "Type", "ID")
         self.set_interval(1.0, self.refresh_view)

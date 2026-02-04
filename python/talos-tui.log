@@ -4348,3 +4348,80 @@
 2026-01-28 23:45:46,182 [INFO] talos_tui.adapters.audit_http: Audit Request: http://localhost:8001/api/events
 2026-01-28 23:45:46,182 [INFO] talos_tui.adapters.gateway_http: Gateway Request: http://localhost:8000/metrics/summary
 2026-01-28 23:45:46,182 [INFO] talos_tui.adapters.audit_http: Audit Request: http://localhost:8001/api/events
+2026-02-04 17:45:24,332 [INFO] talos_tui.adapters.base: HTTP GET http://test/api/events -> <AsyncMock name='mock.request().__aenter__().status' id='4434424704'> (0ms) [Attempt 1]
+2026-02-04 17:45:24,333 [ERROR] talos_tui.adapters.base: Unexpected error on http://test/api/events
+Traceback (most recent call last):
+  File "/Users/nileshchakraborty/workspace/talos/tools/talos-tui/python/src/talos_tui/adapters/base.py", line 152, in _request
+    if resp.status >= 500:
+       ^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'AsyncMock' and 'int'
+2026-02-04 17:45:24,369 [INFO] talos_tui.adapters.base: HTTP GET http://test/api/events -> <AsyncMock name='mock.request().__aenter__().status' id='4437433312'> (0ms) [Attempt 1]
+2026-02-04 17:45:24,369 [ERROR] talos_tui.adapters.base: Unexpected error on http://test/api/events
+Traceback (most recent call last):
+  File "/Users/nileshchakraborty/workspace/talos/tools/talos-tui/python/src/talos_tui/adapters/base.py", line 152, in _request
+    if resp.status >= 500:
+       ^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'AsyncMock' and 'int'
+2026-02-04 17:45:24,383 [WARNING] talos_tui.core.coordinator: Handshake error for gateway: 500 Internal
+2026-02-04 17:45:26,385 [WARNING] talos_tui.core.coordinator: Handshake error for gateway: 500 Internal
+2026-02-04 17:45:30,386 [INFO] talos_tui.core.coordinator: Transition: BOOT -> FATAL
+2026-02-04 17:45:30,391 [WARNING] talos_tui.core.coordinator: Handshake error for gateway: 401 Unauthorized
+2026-02-04 17:45:30,391 [INFO] talos_tui.core.coordinator: Transition: BOOT -> FATAL
+2026-02-04 17:45:30,397 [INFO] talos_tui.adapters.base: HTTP GET http://test/version -> <AsyncMock name='mock.request().__aenter__().status' id='4439330160'> (0ms) [Attempt 1]
+2026-02-04 17:45:30,398 [ERROR] talos_tui.adapters.base: Unexpected error on http://test/version
+Traceback (most recent call last):
+  File "/Users/nileshchakraborty/workspace/talos/tools/talos-tui/python/src/talos_tui/adapters/base.py", line 152, in _request
+    if resp.status >= 500:
+       ^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'AsyncMock' and 'int'
+2026-02-04 17:45:30,426 [INFO] talos_tui.adapters.base: HTTP GET http://test/version -> <AsyncMock name='mock.request().__aenter__().status' id='4439333856'> (0ms) [Attempt 1]
+2026-02-04 17:45:30,427 [ERROR] talos_tui.adapters.base: Unexpected error on http://test/version
+Traceback (most recent call last):
+  File "/Users/nileshchakraborty/workspace/talos/tools/talos-tui/python/src/talos_tui/adapters/base.py", line 152, in _request
+    if resp.status >= 500:
+       ^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'AsyncMock' and 'int'
+2026-02-04 17:45:30,431 [INFO] talos_tui.adapters.base: HTTP GET http://test/health/ready -> <AsyncMock name='mock.request().__aenter__().status' id='4439341248'> (0ms) [Attempt 1]
+2026-02-04 17:45:30,432 [ERROR] talos_tui.adapters.base: Unexpected error on http://test/health/ready
+Traceback (most recent call last):
+  File "/Users/nileshchakraborty/workspace/talos/tools/talos-tui/python/src/talos_tui/adapters/base.py", line 152, in _request
+    if resp.status >= 500:
+       ^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'AsyncMock' and 'int'
+2026-02-04 17:45:30,441 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-02-04 17:45:30,441 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-02-04 17:45:30,441 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> STOPPING
+2026-02-04 17:45:30,441 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-02-04 17:45:30,479 [INFO] talos_tui.adapters.base: HTTP GET http://localhost:8000/health/ready -> 403 (3ms) [Attempt 1]
+2026-02-04 17:45:30,480 [INFO] talos_tui.adapters.base: HTTP GET http://localhost:8000/health/ready -> 500 (0ms) [Attempt 1]
+2026-02-04 17:45:30,481 [INFO] talos_tui.adapters.base: Backing off for 0.54s...
+2026-02-04 17:45:30,481 [INFO] talos_tui.adapters.base: HTTP GET http://localhost:8000/health/ready -> 200 (0ms) [Attempt 2]
+2026-02-04 17:45:30,484 [INFO] talos_tui.adapters.base: HTTP GET http://localhost:8000/health/ready -> 200 (0ms) [Attempt 1]
+2026-02-04 17:53:21,655 [INFO] talos_tui.core.coordinator: Transition: BOOT -> STOPPING
+2026-02-04 17:53:21,655 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-02-04 17:53:57,313 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-02-04 17:53:57,313 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-02-04 17:53:57,740 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> STOPPING
+2026-02-04 17:53:57,740 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-02-04 17:54:14,582 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-02-04 17:54:14,582 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-02-04 17:54:14,600 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] (Attempt 1)
+2026-02-04 17:54:14,600 [INFO] talos_tui.adapters.base: Backing off for 0.52s...
+2026-02-04 17:54:15,118 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)] (Attempt 2)
+2026-02-04 17:54:15,118 [INFO] talos_tui.adapters.base: Backing off for 1.10s...
+2026-02-04 17:54:16,220 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] (Attempt 3)
+2026-02-04 17:54:16,220 [INFO] talos_tui.adapters.base: Backing off for 2.12s...
+2026-02-04 17:54:18,338 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)] (Attempt 4)
+2026-02-04 17:54:18,338 [INFO] talos_tui.adapters.base: Backing off for 4.18s...
+2026-02-04 17:54:22,525 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] (Attempt 5)
+2026-02-04 17:54:22,525 [WARNING] talos_tui.core.coordinator: Handshake error for gateway: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)]
+2026-02-04 17:54:25,528 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] (Attempt 1)
+2026-02-04 17:54:25,528 [INFO] talos_tui.adapters.base: Backing off for 0.52s...
+2026-02-04 17:54:26,045 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)] (Attempt 2)
+2026-02-04 17:54:26,045 [INFO] talos_tui.adapters.base: Backing off for 1.02s...
+2026-02-04 17:54:27,072 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8000)] (Attempt 3)
+2026-02-04 17:54:27,072 [INFO] talos_tui.adapters.base: Backing off for 2.10s...
+2026-02-04 17:54:29,169 [WARNING] talos_tui.adapters.base: Network error on http://localhost:8000/health/ready: Cannot connect to host localhost:8000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 8000), [Errno 61] Connect call failed ('::1', 8000, 0, 0)] (Attempt 4)
+2026-02-04 17:54:29,169 [INFO] talos_tui.adapters.base: Backing off for 4.21s...
+2026-02-04 17:54:33,003 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> STOPPING
+2026-02-04 17:54:33,003 [INFO] talos_tui.core.coordinator: Coordinator stopped.

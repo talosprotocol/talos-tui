@@ -5,7 +5,7 @@ from talos_tui.adapters.audit_http import HttpAuditAdapter
 from talos_tui.ports.errors import TuiError
 
 @pytest.mark.asyncio
-async def test_audit_list_events_success():
+async def test_audit_list_events_success() -> None:
     mock_resp = AsyncMock(spec=ClientResponse)
     mock_resp.status = 200
     mock_resp.content_length = 1000
@@ -23,7 +23,7 @@ async def test_audit_list_events_success():
     }
     
     mock_session = AsyncMock(spec=ClientSession)
-    mock_session.get.return_value.__aenter__.return_value = mock_resp
+    mock_session.request.return_value.__aenter__.return_value = mock_resp
     
     adapter = HttpAuditAdapter("http://test", mock_session)
     page = await adapter.list_events(limit=10, before=None)
@@ -34,7 +34,7 @@ async def test_audit_list_events_success():
     assert page.has_more is True
 
 @pytest.mark.asyncio
-async def test_audit_redaction_applied():
+async def test_audit_redaction_applied() -> None:
     """Verify secrets are redacted before domain model creation."""
     mock_resp = AsyncMock(spec=ClientResponse)
     mock_resp.status = 200
@@ -51,7 +51,7 @@ async def test_audit_redaction_applied():
     }
     
     mock_session = AsyncMock(spec=ClientSession)
-    mock_session.get.return_value.__aenter__.return_value = mock_resp
+    mock_session.request.return_value.__aenter__.return_value = mock_resp
     
     adapter = HttpAuditAdapter("http://test", mock_session)
     page = await adapter.list_events(limit=10, before=None)
