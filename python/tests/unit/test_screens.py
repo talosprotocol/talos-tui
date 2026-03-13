@@ -52,4 +52,44 @@ def test_audit_refresh_view() -> None:
     # We check string contents implicitly since they are Rich Text objects
     assert "2023" in str(call_args[1])
     assert "login" in str(call_args[2])
+    assert "login" in str(call_args[2])
     assert "1" in str(call_args[3])
+
+
+def test_startup_screen_buttons() -> None:
+    from talos_tui.ui.screens.startup import StartupScreen
+    from typing import Any
+
+    class TestableStartupScreen(StartupScreen):
+        def __init__(self, store: StateStore):
+            super().__init__(store)
+            self._test_app: Any = None
+
+        @property
+        def app(self) -> Any:
+            return self._test_app
+
+    store = StateStore()
+    screen = TestableStartupScreen(store)
+
+    # Mock query_one so self.query_one("#loading") works
+    mock_loading = MagicMock()
+    screen.query_one = MagicMock(return_value=mock_loading)  # type: ignore[method-assign]
+    
+    mock_app = MagicMock()
+    mock_coordinator = MagicMock()
+    mock_app.coordinator = mock_coordinator
+    screen._test_app = mock_app
+    
+    # Test Quit
+    quit_event = MagicMock()
+    quit_event.button.id = "quit-btn"
+    screen.on_button_pressed(quit_event)
+    mock_app.exit.assert_called_once()
+    
+    # Test Retry
+    retry_event = MagicMock()
+    retry_event.button.id = "retry_btn" # Wait, ID mismatch? startup.py has "retry-btn"
+    retry_event.button.id = "retry-btn"
+    screen.on_button_pressed(retry_event)
+    mock_coordinator.retry.assert_called_once()

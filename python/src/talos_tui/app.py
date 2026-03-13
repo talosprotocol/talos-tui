@@ -35,8 +35,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-GATEWAY_URL = os.getenv("TALOS_GATEWAY_URL", "http://localhost:8000")
-AUDIT_URL = os.getenv("TALOS_AUDIT_URL", "http://localhost:8001")
+GATEWAY_URL = os.getenv("TALOS_GATEWAY_URL", "http://localhost:8080")
+AUDIT_URL = os.getenv("TALOS_AUDIT_URL", "http://localhost:8081")
 USE_MOCK = os.getenv("TALOS_TUI_MOCK", "0") == "1"
 CONTRACTS_ROOT = (
     Path(__file__).parent.parent.parent.parent.parent / "contracts"

@@ -44,7 +44,7 @@ async def test_handshake_success() -> None:
     await coordinator._do_handshake("audit")
     assert store.audit.health_ok is True
     assert store.audit.version == "1.0.0"
-    assert coordinator.state == TuiState.RUNNING  # type: ignore[comparison-overlap]
+    assert coordinator.state == TuiState.RUNNING
 
 
 @pytest.mark.asyncio

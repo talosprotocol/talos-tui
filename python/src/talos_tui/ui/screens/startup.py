@@ -6,6 +6,7 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Label, LoadingIndicator, Button
 from textual.containers import Vertical, Horizontal, Container
+from typing import Any
 
 from talos_tui.core.state import StateStore, SourceState
 
@@ -108,6 +109,18 @@ class StartupScreen(Screen[None]):
         elif state.error:
             label.update(f"ERROR: {state.error}")
             label.set_classes("status-error")
-        else:
             label.update(state.status_msg)
             label.set_classes("status-pending")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button clicks."""
+        if event.button.id == "quit-btn":
+            self.app.exit()
+        elif event.button.id == "retry-btn":
+            # We need to access the app's coordinator
+            # Textual 'app' property is generic, so we might need to cast or access dynamically
+            app: Any = self.app
+            if app.coordinator:
+                app.coordinator.retry()
+                # Re-enable loading indicator if it was hidden
+                self.query_one("#loading").display = True

@@ -93,6 +93,19 @@ class Coordinator:
             await asyncio.wait(self._tasks, timeout=2.0)
         logger.info("Coordinator stopped.")
 
+    def retry(self) -> None:
+        """Retry the handshake process manually."""
+        logger.info("Manual retry triggered.")
+        self._handshake_attempts = {"gateway": 0, "audit": 0}
+        self.store.is_fatal = False
+        self.store.global_error = None
+        # Reset source errors explicitly to clear UI
+        self.store.gateway.error = None
+        self.store.audit.error = None
+
+        self.transition(TuiState.HANDSHAKE_GATEWAY)
+        self.spawn(self._handshake_loop())
+
     async def _handshake_loop(self) -> None:
         """Sequential handshake with backoff"""
         while not self._stop_event.is_set():
