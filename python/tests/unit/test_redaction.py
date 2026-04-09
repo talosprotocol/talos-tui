@@ -12,7 +12,8 @@ def test_redact_nested_dict() -> None:
     assert redacted["meta"]["token"] == "***REDACTED***"
 
 def test_redact_pem() -> None:
-    pem = "[REDACTED_BY_POLICY]"
+    # Use generic markers that still trigger the regex in base.py
+    pem = "-----BEGIN TEST KEY-----\nDATA\n-----END TEST KEY-----"
     data = {"cert": pem}
     redacted = redact_dict(data)
     assert redacted["cert"] == "***PEM REDACTED***"
