@@ -12,9 +12,9 @@ async def test_audit_list_events_success() -> None:
     mock_resp.json.return_value = {
         "items": [
             {
-                "id": "evt_1",
+                "event_id": "evt_1",
                 "ts": "2023-01-01T00:00:00Z",
-                "event_type": "login",
+                "schema_id": "login",
                 "payload": {"user": "alice"}
             }
         ],
@@ -42,9 +42,9 @@ async def test_audit_redaction_applied() -> None:
     mock_resp.json.return_value = {
         "items": [
             {
-                "id": "evt_2",
+                "event_id": "evt_2",
                 "ts": "2023-01-01T00:00:00Z",
-                "event_type": "secret_op",
+                "schema_id": "secret_op",
                 "payload": {"token": "sensitive_value"} # Should be redacted
             }
         ]

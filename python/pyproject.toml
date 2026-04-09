@@ -79,3 +79,8 @@ disable_error_code = ["import-untyped"]
 # Allow looser typing for tests if needed, but keeping strict for now
 module = "tests.*"
 disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--import-mode=prepend"

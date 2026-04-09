@@ -12,8 +12,12 @@ async def test_coordinator_lifecycle() -> None:
     coord = Coordinator(store, gateway, audit)
     
     # Start (mocks handshake loop)
-    # We don't want the infinite loop to block, so we'll mock spawn or make handshake exit
-    coord.spawn = MagicMock()   # type: ignore[method-assign]
+    # We don't want the infinite loop to block, so we'll mock spawn
+    def swallow_task(coro):
+        coro.close()
+        return MagicMock()
+
+    coord.spawn = MagicMock(side_effect=swallow_task) 
     
     await coord.start()
     assert coord.state.name == "HANDSHAKE_GATEWAY"

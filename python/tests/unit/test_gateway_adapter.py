@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from aiohttp import ClientSession, ClientResponse
 from talos_tui.adapters.gateway_http import HttpGatewayAdapter
 from talos_tui.ports.errors import TuiError
@@ -10,7 +10,7 @@ async def test_gateway_get_version_success() -> None:
     mock_resp.status = 200
     mock_resp.content_length = 500
     mock_resp.json.return_value = {
-        "service_version": "1.0.0",
+        "version": "1.0.0",
         "git_sha": "abc",
         "contracts_version": "1.0.0",
         "api_version": "v1"
@@ -45,6 +45,7 @@ async def test_gateway_payload_too_large() -> None:
 async def test_gateway_bad_status() -> None:
     mock_resp = AsyncMock(spec=ClientResponse)
     mock_resp.status = 500
+    mock_resp.headers = {}
     
     mock_session = AsyncMock(spec=ClientSession)
     mock_session.request.return_value.__aenter__.return_value = mock_resp

@@ -1,7 +1,12 @@
 import pytest
 import aiohttp
+import asyncio
 from unittest.mock import patch
-from aioresponses import aioresponses
+from pytest import importorskip
+
+aioresponses_lib = importorskip("aioresponses")
+aioresponses = aioresponses_lib.aioresponses
+
 from talos_tui.adapters.gateway_http import HttpGatewayAdapter
 from talos_tui.ports.errors import TuiError
 

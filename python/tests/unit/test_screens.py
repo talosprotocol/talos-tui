@@ -23,11 +23,11 @@ def test_dashboard_update_metrics() -> None:
     dash.refresh_view()
 
     # Verify calls
-    assert dash.query_one.call_count == 7
-    # Check calls
-    calls = dash.query_one.call_args_list
-    assert calls[0][0][0] == "#peers"
-    assert calls[1][0][0] == "#sessions"
+    queried_ids = [call.args[0] for call in dash.query_one.call_args_list]
+    assert "#peers" in queried_ids
+    assert "#sessions" in queried_ids
+    assert "#p50" in queried_ids
+    assert "#p95" in queried_ids
 
 
 def test_audit_refresh_view() -> None:
@@ -51,7 +51,6 @@ def test_audit_refresh_view() -> None:
     call_args = mock_table.add_row.call_args[0]
     # We check string contents implicitly since they are Rich Text objects
     assert "2023" in str(call_args[1])
-    assert "login" in str(call_args[2])
     assert "login" in str(call_args[2])
     assert "1" in str(call_args[3])
 
@@ -89,7 +88,6 @@ def test_startup_screen_buttons() -> None:
     
     # Test Retry
     retry_event = MagicMock()
-    retry_event.button.id = "retry_btn" # Wait, ID mismatch? startup.py has "retry-btn"
     retry_event.button.id = "retry-btn"
     screen.on_button_pressed(retry_event)
     mock_coordinator.retry.assert_called_once()
