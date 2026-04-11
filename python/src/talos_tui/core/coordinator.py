@@ -147,7 +147,7 @@ class Coordinator:
             self.store.reduce(
                 HealthUpdated(
                     source=source,
-                    is_ok=health.ok(),
+                    is_ok=health.ok,
                     status_msg="READY" if health.ok else "NOT_READY"
                 )
             )
@@ -252,6 +252,13 @@ class Coordinator:
                         next_cursor=page.next_cursor
                     )
                 )
+                if (
+                    self.state == TuiState.DEGRADED
+                    and self.store.audit.health_ok
+                ):
+                    # Check if gateway is also ok to go back to RUNNING
+                    if self.store.gateway.health_ok:
+                        self.transition(TuiState.RUNNING)
             except TuiError as e:
                 audit_err = ErrorOccurred(
                     source="audit", kind=e.kind, message=e.message
