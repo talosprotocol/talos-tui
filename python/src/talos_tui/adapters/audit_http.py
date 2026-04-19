@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Any
+from typing import Sequence, Optional, Any
 import aiohttp
 from pydantic import ValidationError
 from ..domain.models import AuditPage, AuditEvent, VersionInfo, Health
 from .base import BaseHttpAdapter
+from .token_broker import AsyncScopedJwtTokenBroker
 
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,8 @@ class HttpAuditAdapter(BaseHttpAdapter):
         session: aiohttp.ClientSession,
         validator: Optional[Any] = None,
         version: str = "0.1.0",
+        auth_broker: Optional[AsyncScopedJwtTokenBroker] = None,
+        auth_permissions: Optional[Sequence[str]] = None,
         **kwargs: Any
     ):
         """
@@ -29,7 +32,13 @@ class HttpAuditAdapter(BaseHttpAdapter):
         @param validator: Functional Validator.
         @param version: API Version.
         """
-        super().__init__(base_url, session, **kwargs)
+        super().__init__(
+            base_url,
+            session,
+            auth_broker=auth_broker,
+            auth_permissions=auth_permissions,
+            **kwargs,
+        )
 
         self.validator = validator
         self.headers = {"User-Agent": f"talos-tui/{version}"}

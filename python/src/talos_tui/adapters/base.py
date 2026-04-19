@@ -6,12 +6,13 @@ import logging
 import random
 import time
 import re
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, Dict, Optional, Sequence, TypeVar
 import aiohttp
 from yarl import URL
 from aiohttp import ClientTimeout
 
 from ..ports.errors import TuiError
+from .token_broker import AsyncScopedJwtTokenBroker
 
 
 logger = logging.getLogger(__name__)
@@ -79,6 +80,8 @@ class BaseHttpAdapter:
         connect_timeout: float = 3.0,
         total_timeout: float = 10.0,
         max_response_size: int = 1_000_000,  # 1MB
+        auth_broker: Optional[AsyncScopedJwtTokenBroker] = None,
+        auth_permissions: Optional[Sequence[str]] = None,
     ):
         self.base_url = URL(base_url)
         self.session = session
@@ -87,6 +90,9 @@ class BaseHttpAdapter:
             connect=connect_timeout, total=total_timeout
         )
         self.max_response_size = max_response_size
+        self.auth_broker = auth_broker
+        self.auth_permissions = tuple(auth_permissions or ())
+        self.headers: Dict[str, str] = {}
 
     async def _request(
         self,
@@ -98,9 +104,15 @@ class BaseHttpAdapter:
         url = self.base_url / path.lstrip("/")
 
         attempt = 0
+        auth_retry_used = False
         while attempt < self.max_attempts:
             attempt += 1
             start_time = time.perf_counter()
+            request_headers = dict(self.headers)
+            if self.auth_broker is not None and self.auth_permissions:
+                request_headers["Authorization"] = await self.auth_broker.authorization_header(
+                    self.auth_permissions
+                )
 
             try:
                 async with self.session.request(
@@ -108,6 +120,7 @@ class BaseHttpAdapter:
                     url,
                     params=params,
                     json=json_data,
+                    headers=request_headers or None,
                     timeout=self.timeout
                 ) as resp:
                     latency_ms = int((time.perf_counter() - start_time) * 1000)
@@ -135,7 +148,19 @@ class BaseHttpAdapter:
                         continue
 
                     if resp.status == 401 or resp.status == 403:
-
+                        if (
+                            self.auth_broker is not None
+                            and self.auth_permissions
+                            and not auth_retry_used
+                        ):
+                            auth_retry_used = True
+                            await self.auth_broker.invalidate(self.auth_permissions)
+                            logger.info(
+                                "Authorization rejected for %s %s; refreshing scoped JWT and retrying once",
+                                method,
+                                url,
+                            )
+                            continue
                         raise TuiError(
                             kind="AUTH",
                             message=f"Access denied ({resp.status})",

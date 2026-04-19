@@ -8,6 +8,7 @@ from ..domain.models import (
     Health, MetricsSummary, Peer, Session, VersionInfo
 )
 from .base import BaseHttpAdapter
+from .token_broker import AsyncScopedJwtTokenBroker
 
 
 logger = logging.getLogger(__name__)
@@ -22,9 +23,17 @@ class HttpGatewayAdapter(BaseHttpAdapter):
         session: aiohttp.ClientSession,
         validator: Optional[Any] = None,
         version: str = "0.1.0",
+        auth_broker: Optional[AsyncScopedJwtTokenBroker] = None,
+        auth_permissions: Optional[Sequence[str]] = None,
         **kwargs: Any
     ):
-        super().__init__(base_url, session, **kwargs)
+        super().__init__(
+            base_url,
+            session,
+            auth_broker=auth_broker,
+            auth_permissions=auth_permissions,
+            **kwargs,
+        )
         self.validator = validator
         self.headers = {"User-Agent": f"talos-tui/{version}"}
 

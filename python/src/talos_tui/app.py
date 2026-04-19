@@ -12,10 +12,12 @@ from textual.theme import Theme
 
 from talos_tui.core.state import StateStore
 from talos_tui.core.coordinator import Coordinator, TuiState
+from talos_tui.core.config import TuiAuthConfig
 from talos_tui.core.contracts import ContractValidator
 
 from talos_tui.adapters.gateway_http import HttpGatewayAdapter
 from talos_tui.adapters.audit_http import HttpAuditAdapter
+from talos_tui.adapters.token_broker import AsyncScopedJwtTokenBroker
 from talos_tui.adapters.mock import MockGatewayAdapter, MockAuditAdapter
 
 from talos_tui.ui.screens.dashboard import StatusDashboard
@@ -76,6 +78,8 @@ class TalosTuiApp(App[None]):
         super().__init__()
         self.store = StateStore()
         self.validator = ContractValidator(CONTRACTS_ROOT / "schemas")
+        self.auth_config = TuiAuthConfig.from_env()
+        self.auth_broker: Optional[AsyncScopedJwtTokenBroker] = None
 
         self.gateway: Any = None
         self.audit: Any = None
@@ -100,11 +104,33 @@ class TalosTuiApp(App[None]):
             import aiohttp  # pylint: disable=import-outside-toplevel
             # Shared session for all adapters
             self._session = aiohttp.ClientSession()
+            if not self.auth_config.admin_secret:
+                raise RuntimeError(
+                    "TUI live mode requires TALOS_TUI_ADMIN_SECRET or AUTH_ADMIN_SECRET "
+                    "so it can mint scoped session JWTs before API requests."
+                )
+            self.auth_broker = AsyncScopedJwtTokenBroker(
+                GATEWAY_URL,
+                self._session,
+                principal=self.auth_config.principal,
+                admin_secret=self.auth_config.admin_secret,
+                data_plane_token=self.auth_config.data_plane_token,
+                ttl_seconds=self.auth_config.ttl_seconds,
+                session_id=self.auth_config.session_id,
+            )
             self.gateway = HttpGatewayAdapter(
-                GATEWAY_URL, self._session, validator=self.validator
+                GATEWAY_URL,
+                self._session,
+                validator=self.validator,
+                auth_broker=self.auth_broker,
+                auth_permissions=self.auth_config.gateway_permissions,
             )
             self.audit = HttpAuditAdapter(
-                AUDIT_URL, self._session, validator=self.validator
+                AUDIT_URL,
+                self._session,
+                validator=self.validator,
+                auth_broker=self.auth_broker,
+                auth_permissions=self.auth_config.audit_permissions,
             )
 
         self.coordinator = Coordinator(
