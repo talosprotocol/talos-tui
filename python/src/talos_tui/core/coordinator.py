@@ -7,12 +7,14 @@ from enum import Enum, auto
 from typing import Any, Dict, Set, Coroutine
 
 from .state import (
-    StateStore,
-    HealthUpdated,
-    VersionUpdated,
-    MetricsUpdated,
     AuditEventsReceived,
-    ErrorOccurred
+    ErrorOccurred,
+    RbacRolesUpdated,
+    RbacBindingsUpdated,
+    SecretsUpdated,
+    KekStatusUpdated,
+    ConfigUpdated,
+    GovernanceLogsUpdated
 )
 from ..ports.errors import TuiError
 
@@ -119,6 +121,10 @@ class Coordinator:
                 # Handshake complete, shift to polling
                 self.spawn(self._poll_metrics())
                 self.spawn(self._poll_audit())
+                self.spawn(self._poll_rbac())
+                self.spawn(self._poll_secrets())
+                self.spawn(self._poll_config())
+                self.spawn(self._poll_governance())
                 return
             elif self.state == TuiState.FATAL:
                 return
@@ -269,3 +275,61 @@ class Coordinator:
                 logger.error("Audit polling error: %s", e)
 
             await asyncio.sleep(2.0)
+
+    async def _poll_rbac(self) -> None:
+        """Poll RBAC roles and bindings from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                # Fetch Roles
+                roles = await self.gateway.list_rbac_roles()
+                self.store.reduce(RbacRolesUpdated(roles=[r.model_dump() for r in roles]))
+
+                # Fetch Bindings
+                bindings = await self.gateway.list_rbac_bindings()
+                self.store.reduce(RbacBindingsUpdated(bindings=[b.model_dump() for b in bindings]))
+
+            except Exception as e:
+                logger.error("RBAC polling error: %s", e)
+
+            # RBAC configuration changes less frequently than metrics
+            await asyncio.sleep(5.0)
+
+    async def _poll_secrets(self) -> None:
+        """Poll secrets and KEK status from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                # Fetch Secrets
+                secrets = await self.gateway.list_secrets()
+                self.store.reduce(SecretsUpdated(secrets=[s.model_dump() for s in secrets]))
+
+                # Fetch KEK status
+                kek = await self.gateway.get_kek_status()
+                self.store.reduce(KekStatusUpdated(status=kek.model_dump()))
+
+            except Exception as e:
+                logger.error("Secrets polling error: %s", e)
+
+            await asyncio.sleep(5.0)
+
+    async def _poll_config(self) -> None:
+        """Poll platform configuration from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                config = await self.gateway.export_config()
+                self.store.reduce(ConfigUpdated(config=config.model_dump()))
+            except Exception as e:
+                logger.error("Config polling error: %s", e)
+
+            # Platform configuration is heavy, poll infrequently
+            await asyncio.sleep(30.0)
+
+    async def _poll_governance(self) -> None:
+        """Poll high-integrity governance logs from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                logs = await self.gateway.list_governance_logs()
+                self.store.reduce(GovernanceLogsUpdated(items=[l.model_dump() for l in logs]))
+            except Exception as e:
+                logger.error("Governance polling error: %s", e)
+
+            await asyncio.sleep(5.0)

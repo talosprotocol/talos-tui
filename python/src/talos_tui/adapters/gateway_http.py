@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import logging
-from typing import Sequence, Optional, Any
+from typing import Sequence, Optional, Any, Dict
 import aiohttp
 from ..domain.models import (
-    Health, MetricsSummary, Peer, Session, VersionInfo
+    Health, MetricsSummary, Peer, Session, VersionInfo,
+    RbacRole, RbacBinding, Secret, KekStatus, RotationOperation, ConfigExport, GovernanceEntry
 )
 from .base import BaseHttpAdapter
 from .token_broker import AsyncScopedJwtTokenBroker
@@ -75,3 +76,61 @@ class HttpGatewayAdapter(BaseHttpAdapter):
         if not isinstance(items, list):
             return []
         return [Session(**s) for s in items[:500]]
+
+    async def list_rbac_roles(self) -> Sequence[RbacRole]:
+        """List current authority roles."""
+        data = await self._request("GET", "admin/v1/rbac/roles")
+        items = data.get("roles", [])
+        return [RbacRole(**r) for r in items]
+
+    async def list_rbac_bindings(self) -> Sequence[RbacBinding]:
+        """List active access bindings."""
+        data = await self._request("GET", "admin/v1/rbac/bindings")
+        items = data.get("bindings", [])
+        return [RbacBinding(**b) for b in items]
+
+    # Secrets Management
+    async def list_secrets(self) -> Sequence[Secret]:
+        """List all secrets metadata."""
+        data = await self._request("GET", "admin/v1/secrets")
+        items = data.get("secrets", [])
+        return [Secret(**s) for s in items]
+
+    async def create_secret(self, name: str, value: str) -> None:
+        """Create a new secret."""
+        await self._request("POST", "admin/v1/secrets", json={"name": name, "value": value})
+
+    async def delete_secret(self, name: str) -> None:
+        """Delete a secret."""
+        await self._request("DELETE", f"admin/v1/secrets/{name}")
+
+    async def get_kek_status(self) -> KekStatus:
+        """Get current KEK provider status."""
+        data = await self._request("GET", "admin/v1/secrets/kek-status")
+        return KekStatus(**data)
+
+    async def rotate_all_secrets(self) -> RotationOperation:
+        """Trigger global secret rotation."""
+        data = await self._request("POST", "admin/v1/secrets/rotate-all", json={})
+        return RotationOperation(**data)
+
+    async def get_rotation_status(self, op_id: str) -> RotationOperation:
+        """Get status of a rotation operation."""
+        data = await self._request("GET", f"admin/v1/secrets/rotation-status/{op_id}")
+        return RotationOperation(**data)
+
+    # Config Management
+    async def export_config(self) -> ConfigExport:
+        """Export current platform configuration."""
+        data = await self._request("GET", "admin/v1/config:export")
+        return ConfigExport(**data)
+
+    async def apply_config(self, config: Dict[str, Any]) -> None:
+        """Apply a new platform configuration."""
+        await self._request("POST", "admin/v1/config:apply", json=config)
+
+    async def list_governance_logs(self) -> Sequence[GovernanceEntry]:
+        """List high-integrity governance execution logs."""
+        data = await self._request("GET", "admin/v1/governance/logs")
+        items = data.get("entries", [])
+        return [GovernanceEntry(**e) for e in items]

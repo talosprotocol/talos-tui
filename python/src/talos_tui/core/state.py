@@ -44,6 +44,36 @@ class AuditEventsReceived(TuiEvent):
     items: List[Dict[str, Any]]
     next_cursor: Optional[str] = None
 
+@dataclass(frozen=True, kw_only=True)
+class RbacRolesUpdated(TuiEvent):
+    """Event for RBAC roles update."""
+    roles: List[Dict[str, Any]]
+
+@dataclass(frozen=True, kw_only=True)
+class RbacBindingsUpdated(TuiEvent):
+    """Event for RBAC bindings update."""
+    bindings: List[Dict[str, Any]]
+
+@dataclass(frozen=True, kw_only=True)
+class SecretsUpdated(TuiEvent):
+    """Event for secrets metadata update."""
+    secrets: List[Dict[str, Any]]
+
+@dataclass(frozen=True, kw_only=True)
+class KekStatusUpdated(TuiEvent):
+    """Event for KEK status update."""
+    status: Dict[str, Any]
+
+@dataclass(frozen=True, kw_only=True)
+class ConfigUpdated(TuiEvent):
+    """Event for platform config update."""
+    config: Dict[str, Any]
+
+@dataclass(frozen=True, kw_only=True)
+class GovernanceLogsUpdated(TuiEvent):
+    """Event for governance logs update."""
+    items: List[Dict[str, Any]]
+
 
 @dataclass(frozen=True, kw_only=True)
 class ErrorOccurred(TuiEvent):
@@ -78,8 +108,17 @@ class StateStore:
     metrics: Dict[str, Any] = field(default_factory=dict)
     audit_events: List[Dict[str, Any]] = field(default_factory=list)
     audit_cursor: Optional[str] = None
+    
+    rbac_roles: List[Dict[str, Any]] = field(default_factory=list)
+    rbac_bindings: List[Dict[str, Any]] = field(default_factory=list)
+    
+    secrets: List[Dict[str, Any]] = field(default_factory=list)
+    kek_status: Optional[Dict[str, Any]] = None
+    platform_config: Optional[Dict[str, Any]] = None
+    governance_logs: List[Dict[str, Any]] = field(default_factory=list)
 
     _seen_audit_ids: Set[str] = field(default_factory=set)
+    _seen_gov_ids: Set[str] = field(default_factory=set)
     global_error: Optional[str] = None
     is_fatal: bool = False
 
@@ -104,13 +143,11 @@ class StateStore:
             self.gateway.last_updated_at = event.timestamp
 
         elif isinstance(event, AuditEventsReceived):
-            # deduplicate and append
+            # deduplicate and prepend newest items
             new_items = []
             for item in event.items:
                 eid = item.get("event_id") or item.get("id")
                 if eid and eid not in self._seen_audit_ids:
-                    new_items.append(item)
-                    self._seen_audit_ids.add(eid)
                     new_items.append(item)
                     self._seen_audit_ids.add(eid)
 
@@ -118,6 +155,39 @@ class StateStore:
             self.audit_events = (new_items + self.audit_events)[:1000]
             self.audit_cursor = event.next_cursor
             self.audit.last_updated_at = event.timestamp
+
+        elif isinstance(event, RbacRolesUpdated):
+            self.rbac_roles = event.roles
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, RbacBindingsUpdated):
+            self.rbac_bindings = event.bindings
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, SecretsUpdated):
+            self.secrets = event.secrets
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, KekStatusUpdated):
+            self.kek_status = event.status
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, ConfigUpdated):
+            self.platform_config = event.config
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, GovernanceLogsUpdated):
+            # deduplicate and prepend
+            new_items = []
+            for item in event.items:
+                # Use trace_id + sequence_number as key
+                gid = f"{item['trace_id']}-{item['sequence_number']}"
+                if gid not in self._seen_gov_ids:
+                    new_items.append(item)
+                    self._seen_gov_ids.add(gid)
+            
+            self.governance_logs = (new_items + self.governance_logs)[:500]
+            self.gateway.last_updated_at = event.timestamp
 
         elif isinstance(event, ErrorOccurred):
             source = getattr(self, event.source)

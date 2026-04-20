@@ -120,3 +120,67 @@ class AuditPage(ViewModel):
 
     next_cursor: Optional[str] = None
     has_more: bool = False
+
+class RbacScope(ViewModel):
+    scope_type: str
+    attributes: Dict[str, str] = Field(default_factory=dict)
+
+class RbacRole(ViewModel):
+    role_id: str
+    name: str
+    permissions: List[str]
+    built_in: bool = False
+    description: Optional[str] = None
+
+class RbacBindingEntry(ViewModel):
+    binding_id: str
+    role_id: str
+    scope: RbacScope
+
+class RbacBinding(ViewModel):
+    principal_id: str
+    team_id: Optional[str] = None
+    bindings: List[RbacBindingEntry] = Field(default_factory=list)
+
+class Secret(ViewModel):
+    """Model for a secret metadata."""
+    name: str
+    kek_id: Optional[str] = None  # KEK used to encrypt this secret
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class KekStatus(ViewModel):
+    """Model for Key Encryption Key status."""
+    current_kek_id: str
+    loaded_kek_ids: List[str]
+    stale_counts: Dict[str, int]
+
+class RotationOperation(ViewModel):
+    """Model for a background rotation operation.
+    
+    The rotate-all endpoint returns `op_id`; the status endpoint returns `id`.
+    AliasChoices handles both.
+    """
+    id: str = Field(validation_alias=AliasChoices("id", "op_id"))
+    status: str
+    target_kek_id: str = ""
+    stats: Dict[str, int] = Field(default_factory=lambda: {"scanned": 0, "rotated": 0, "failed": 0})
+    started_at: str = ""
+    completed_at: Optional[str] = None
+    last_error: Optional[str] = None
+
+class GovernanceEntry(ViewModel):
+    """Governance entry model."""
+    trace_id: str
+    sequence_number: int
+    artifact_type: str
+    ts: str
+    status: str
+    principal_id: str
+    artifact_id: str
+
+class ConfigExport(ViewModel):
+    """Model for platform configuration export."""
+    upstreams: Dict[str, Any]
+    model_groups: Dict[str, Any]
+    routing_policies: Dict[str, Any]

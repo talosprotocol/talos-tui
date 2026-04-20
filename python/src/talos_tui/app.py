@@ -22,6 +22,10 @@ from talos_tui.adapters.mock import MockGatewayAdapter, MockAuditAdapter
 
 from talos_tui.ui.screens.dashboard import StatusDashboard
 from talos_tui.ui.screens.audit import AuditViewer
+from talos_tui.ui.screens.rbac import RbacManager
+from talos_tui.ui.screens.secrets import SecretsManager
+from talos_tui.ui.screens.config import ConfigManager
+from talos_tui.ui.screens.governance import GovernanceViewer
 from talos_tui.ui.screens.startup import StartupScreen
 
 # Configure logging early and REDIRECT to file
@@ -71,6 +75,10 @@ class TalosTuiApp(App[None]):
     BINDINGS = [
         Binding("d", "show_dashboard", "Dashboard"),
         Binding("a", "show_audit", "Audit Logs"),
+        Binding("r", "show_rbac", "RBAC"),
+        Binding("s", "show_secrets", "Secrets"),
+        Binding("c", "show_config", "Config"),
+        Binding("g", "show_governance", "Gov"),
         Binding("q", "quit", "Quit"),
     ]
 
@@ -87,6 +95,10 @@ class TalosTuiApp(App[None]):
         self.coordinator: Optional[Coordinator] = None
         self.dashboard_screen = StatusDashboard(self.store)
         self.audit_screen = AuditViewer(self.store)
+        self.rbac_screen = RbacManager(self.store)
+        self.secrets_screen = SecretsManager(self.store)
+        self.config_screen = ConfigManager(self.store)
+        self.governance_screen = GovernanceViewer(self.store)
 
         if not USE_MOCK:
             # Type hint for mypy, though we import aiohttp later
@@ -142,6 +154,10 @@ class TalosTuiApp(App[None]):
 
         self.install_screen(self.dashboard_screen, name="dashboard")
         self.install_screen(self.audit_screen, name="audit")
+        self.install_screen(self.rbac_screen, name="rbac")
+        self.install_screen(self.secrets_screen, name="secrets")
+        self.install_screen(self.config_screen, name="config")
+        self.install_screen(self.governance_screen, name="governance")
 
         self.push_screen(StartupScreen(self.store))
         await self.coordinator.start()
@@ -176,6 +192,38 @@ class TalosTuiApp(App[None]):
             TuiState.DEGRADED,
         ):
             self.switch_screen("audit")
+
+    def action_show_rbac(self) -> None:
+        """Switch to RBAC screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("rbac")
+
+    def action_show_secrets(self) -> None:
+        """Switch to Secrets screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("secrets")
+
+    def action_show_config(self) -> None:
+        """Switch to Config screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("config")
+
+    def action_show_governance(self) -> None:
+        """Switch to Governance screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("governance")
 
     async def on_unmount(self) -> None:
         """Cleanup resources on exit."""

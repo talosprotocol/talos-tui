@@ -1,3 +1,6 @@
+/* === Talos Command Center TUI Stylesheet === */
+
+/* --- Base --- */
 Screen {
     background: $background;
     color: $foreground;
@@ -14,6 +17,7 @@ Footer {
     color: $secondary;
 }
 
+/* --- Status Labels --- */
 #status_label {
     width: 100%;
     content-align: center middle;
@@ -30,6 +34,7 @@ Footer {
     margin: 2;
 }
 
+/* --- Top Bar / Health Bar --- */
 #top-bar {
     height: 3;
     width: 100%;
@@ -62,6 +67,7 @@ Footer {
     color: $text-muted;
 }
 
+/* --- Metric Cards (Dashboard) --- */
 MetricCard {
     background: $surface;
     border: tall $secondary-darken-2;
@@ -89,7 +95,7 @@ MetricCard:hover {
     text-style: bold;
 }
 
-/* Audit Styles */
+/* --- Audit Screen --- */
 #audit_container {
     padding: 1 2;
 }
@@ -113,3 +119,161 @@ AuditViewer .title {
 .severity-info { color: $success; }
 .severity-warn { color: $warning; }
 .severity-error { color: $error; }
+
+/* --- RBAC Screen --- */
+#rbac_container {
+    padding: 1 2;
+    height: 100%;
+}
+
+RbacManager TabbedContent {
+    height: 1fr;
+}
+
+RbacManager DataTable {
+    height: 1fr;
+    border: tall $secondary-darken-2;
+    margin-top: 1;
+}
+
+/* --- Admin Glass Panels (shared by Secrets, Config) --- */
+.panel-title {
+    color: $primary;
+    text-style: bold;
+    margin: 1 0;
+    padding-left: 1;
+}
+
+.spacer {
+    margin-top: 2;
+}
+
+GlassPanel {
+    background: $surface 40%;
+    border: tall $secondary-darken-2;
+    padding: 1 2;
+    margin-bottom: 1;
+}
+
+GlassPanel:focus-within {
+    border: tall $primary 60%;
+}
+
+/* --- Secrets Screen --- */
+#secrets-container {
+    padding: 1 2;
+    height: 1fr;
+    overflow-y: auto;
+}
+
+#kek-panel {
+    max-height: 12;
+}
+
+#rotation-panel {
+    max-height: 10;
+    border: tall $warning 40%;
+}
+
+.kek-row {
+    margin: 0 0 1 0;
+    height: auto;
+    align: left middle;
+}
+
+.kek-info, .kek-stats {
+    margin: 0 1;
+    height: 1;
+}
+
+.rotation-stats {
+    height: 1;
+    margin-top: 1;
+}
+
+.rotation-stats Static {
+    margin-right: 3;
+}
+
+#secrets-table {
+    height: 1fr;
+    margin-top: 1;
+    border: tall $secondary-darken-2;
+}
+
+SecretsManager Button#btn-rotate {
+    margin-top: 1;
+    width: auto;
+}
+
+/* --- Config Screen --- */
+#config-container {
+    padding: 1 2;
+    height: 1fr;
+}
+
+#config-title {
+    margin-bottom: 1;
+}
+
+#config-tabs {
+    height: 1fr;
+}
+
+ConfigManager TabbedContent {
+    height: 1fr;
+}
+
+ConfigManager DataTable {
+    height: 1fr;
+    margin-top: 1;
+    border: tall $secondary-darken-2;
+}
+
+#raw-scroll {
+    height: 1fr;
+    overflow-y: auto;
+    border: tall $secondary-darken-2;
+    padding: 1 2;
+}
+
+#config-json {
+    color: $secondary;
+}
+
+/* --- Shared Form Elements --- */
+.label {
+    width: 20;
+    color: $text-muted;
+    text-style: bold;
+}
+
+.value {
+    color: $foreground;
+}
+
+.mono {
+    font-family: "Courier New", Courier, monospace;
+}
+
+.mono-small {
+    color: $secondary;
+}
+
+.amber {
+    color: $warning;
+}
+
+/* --- DataTable Global --- */
+DataTable {
+    zebra_stripes: true;
+}
+
+DataTable > .datatable--cursor {
+    background: $primary 20%;
+    color: $foreground;
+}
+
+DataTable > .datatable--hover {
+    background: $surface;
+}
