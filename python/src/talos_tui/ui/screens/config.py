@@ -60,7 +60,11 @@ class ConfigManager(Screen):
                 with TabPane("Routing Policies", id="tab-policies"):
                     yield DataTable(id="policies-table", show_cursor=True)
 
-                # Tab 4: Raw JSON
+                # Tab 4: MCP Servers
+                with TabPane("MCP Servers", id="tab-mcp-servers"):
+                    yield DataTable(id="mcp-servers-table", show_cursor=True)
+
+                # Tab 5: Raw JSON
                 with TabPane("Raw JSON", id="tab-raw"):
                     with ScrollableContainer(id="raw-scroll"):
                         yield Static("", id="config-json", classes="mono-small")
@@ -77,6 +81,9 @@ class ConfigManager(Screen):
         )
         self.query_one("#policies-table", DataTable).add_columns(
             "Policy ID", "Version", "Created At"
+        )
+        self.query_one("#mcp-servers-table", DataTable).add_columns(
+            "ID", "Name", "Endpoint", "Enabled", "Version"
         )
         self.update_view()
         self.set_interval(5.0, self.update_view)
@@ -128,6 +135,19 @@ class ConfigManager(Screen):
                 f"[bold]{pid}[/bold]",
                 str(p.get("version", "—")),
                 p.get("created_at", "—"),
+            )
+
+        # --- MCP Servers Tab ---
+        mcp_table = self.query_one("#mcp-servers-table", DataTable)
+        mcp_table.clear()
+        for sid, s in config.get("mcp_servers", {}).items():
+            enabled = "[green]● YES[/green]" if s.get("enabled", True) else "[red]○ NO[/red]"
+            mcp_table.add_row(
+                f"[bold]{sid}[/bold]",
+                s.get("name", "—"),
+                f"[dim]{s.get('endpoint', '—')}[/dim]",
+                enabled,
+                str(s.get("version", 1)),
             )
 
         # --- Raw JSON Tab ---

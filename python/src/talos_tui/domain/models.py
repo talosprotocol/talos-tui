@@ -184,3 +184,44 @@ class ConfigExport(ViewModel):
     upstreams: Dict[str, Any]
     model_groups: Dict[str, Any]
     routing_policies: Dict[str, Any]
+    mcp_servers: Dict[str, Any] = Field(default_factory=dict)
+    mcp_policies: Dict[str, Any] = Field(default_factory=dict)
+
+class Team(ViewModel):
+    """Model for a Team configuration."""
+    id: str
+    name: str
+    budget_mode: str = "off"
+    overdraft_usd: float = 0.0
+    budget: Dict[str, Any] = Field(default_factory=dict)
+    created_at: Optional[str] = None
+
+class VirtualKey(ViewModel):
+    """Model for a Virtual Key configuration."""
+    id: str
+    team_id: str
+    scopes: List[str] = Field(default_factory=list)
+    allowed_model_groups: List[str] = Field(default_factory=list)
+    revoked: bool = False
+    expires_at: Optional[str] = None
+    budget_mode: str = "off"
+    overdraft_usd: float = 0.0
+    budget: Dict[str, Any] = Field(default_factory=dict)
+    created_at: Optional[str] = None
+
+class McpServer(ViewModel):
+    """Model for an MCP Server configuration."""
+    id: str
+    name: str = ""
+    endpoint: str = ""
+    enabled: bool = True
+    version: int = 1
+    created_at: Optional[str] = None
+
+class McpPolicy(ViewModel):
+    """Model for an MCP Policy."""
+    id: str
+    team_id: str
+    allowed_servers: List[str] = Field(default_factory=list)
+    enforcement_mode: str = "strict"
+    created_at: Optional[str] = None

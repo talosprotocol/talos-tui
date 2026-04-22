@@ -16,6 +16,7 @@ install:
 	$(PIP) install -e .
 
 test:
+	@if [ ! -d "$(VENV)" ]; then $(MAKE) setup; fi
 	$(PYTHON) -m pytest tests/unit tests/integration tests/architecture
 
 test-cov:

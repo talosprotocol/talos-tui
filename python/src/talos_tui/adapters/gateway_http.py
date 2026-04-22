@@ -6,7 +6,8 @@ from typing import Sequence, Optional, Any, Dict
 import aiohttp
 from ..domain.models import (
     Health, MetricsSummary, Peer, Session, VersionInfo,
-    RbacRole, RbacBinding, Secret, KekStatus, RotationOperation, ConfigExport, GovernanceEntry
+    RbacRole, RbacBinding, Secret, KekStatus, RotationOperation, ConfigExport, GovernanceEntry,
+    BudgetScope, Team, VirtualKey, McpServer, McpPolicy
 )
 from .base import BaseHttpAdapter
 from .token_broker import AsyncScopedJwtTokenBroker
@@ -134,3 +135,35 @@ class HttpGatewayAdapter(BaseHttpAdapter):
         data = await self._request("GET", "admin/v1/governance/logs")
         items = data.get("entries", [])
         return [GovernanceEntry(**e) for e in items]
+
+    # Budget & Key Management
+    async def list_budget_scopes(self) -> Sequence[BudgetScope]:
+        """List current budget scopes and usage."""
+        data = await self._request("GET", "admin/v1/budgets/scopes")
+        items = data.get("scopes", [])
+        return [BudgetScope(**s) for s in items]
+
+    async def list_virtual_keys(self) -> Sequence[VirtualKey]:
+        """List all virtual keys metadata."""
+        data = await self._request("GET", "admin/v1/keys")
+        items = data.get("keys", [])
+        return [VirtualKey(**k) for k in items]
+
+    async def list_teams(self) -> Sequence[Team]:
+        """List all teams configuration."""
+        data = await self._request("GET", "admin/v1/teams")
+        items = data.get("teams", [])
+        return [Team(**t) for t in items]
+
+    async def list_mcp_servers(self) -> Sequence[McpServer]:
+        """List all MCP servers."""
+        data = await self._request("GET", "admin/v1/mcp/servers")
+        items = data.get("servers", [])
+        return [McpServer(**s) for s in items]
+
+    async def list_mcp_policies(self, team_id: Optional[str] = None) -> Sequence[McpPolicy]:
+        """List MCP policies, optionally filtered by team."""
+        params = {"team_id": team_id} if team_id else {}
+        data = await self._request("GET", "admin/v1/mcp/policies", params=params)
+        items = data.get("policies", [])
+        return [McpPolicy(**p) for p in items]

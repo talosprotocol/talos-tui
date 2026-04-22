@@ -27,6 +27,7 @@ from talos_tui.ui.screens.secrets import SecretsManager
 from talos_tui.ui.screens.config import ConfigManager
 from talos_tui.ui.screens.governance import GovernanceViewer
 from talos_tui.ui.screens.startup import StartupScreen
+from talos_tui.ui.screens.budgets import BudgetManager
 
 # Configure logging early and REDIRECT to file
 for handler in logging.root.handlers[:]:
@@ -79,6 +80,7 @@ class TalosTuiApp(App[None]):
         Binding("s", "show_secrets", "Secrets"),
         Binding("c", "show_config", "Config"),
         Binding("g", "show_governance", "Gov"),
+        Binding("b", "show_budgets", "Budgets"),
         Binding("q", "quit", "Quit"),
     ]
 
@@ -99,6 +101,7 @@ class TalosTuiApp(App[None]):
         self.secrets_screen = SecretsManager(self.store)
         self.config_screen = ConfigManager(self.store)
         self.governance_screen = GovernanceViewer(self.store)
+        self.budgets_screen = BudgetManager(self.store)
 
         if not USE_MOCK:
             # Type hint for mypy, though we import aiohttp later
@@ -158,6 +161,7 @@ class TalosTuiApp(App[None]):
         self.install_screen(self.secrets_screen, name="secrets")
         self.install_screen(self.config_screen, name="config")
         self.install_screen(self.governance_screen, name="governance")
+        self.install_screen(self.budgets_screen, name="budgets")
 
         self.push_screen(StartupScreen(self.store))
         await self.coordinator.start()
@@ -224,6 +228,14 @@ class TalosTuiApp(App[None]):
             TuiState.DEGRADED,
         ):
             self.switch_screen("governance")
+
+    def action_show_budgets(self) -> None:
+        """Switch to Budgets screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("budgets")
 
     async def on_unmount(self) -> None:
         """Cleanup resources on exit."""

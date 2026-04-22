@@ -36,4 +36,6 @@ ENV PATH="/home/talos/.local/bin:${PATH}"
 ENV TALOS_GATEWAY_URL="http://gateway:8000"
 ENV TALOS_AUDIT_URL="http://audit:8001"
 
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+
 ENTRYPOINT ["talos-tui"]

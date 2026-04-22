@@ -121,3 +121,8 @@ kubectl get pods -l app.kubernetes.io/name=talos-tui
 # Attach to the running session (requires tty: true in deployment)
 kubectl attach -it deployment/talos-tui -c talos-tui
 ```
+
+## License
+
+Talos Protocol TUI is distributed under the Apache License 2.0. See `LICENSE`
+and `NOTICE` in this repository for details.

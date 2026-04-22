@@ -14,7 +14,12 @@ from .state import (
     SecretsUpdated,
     KekStatusUpdated,
     ConfigUpdated,
-    GovernanceLogsUpdated
+    GovernanceLogsUpdated,
+    BudgetsUpdated,
+    VirtualKeysUpdated,
+    TeamsUpdated,
+    McpServersUpdated,
+    McpPoliciesUpdated
 )
 from ..ports.errors import TuiError
 
@@ -125,6 +130,9 @@ class Coordinator:
                 self.spawn(self._poll_secrets())
                 self.spawn(self._poll_config())
                 self.spawn(self._poll_governance())
+                self.spawn(self._poll_budgets())
+                self.spawn(self._poll_keys())
+                self.spawn(self._poll_mcp())
                 return
             elif self.state == TuiState.FATAL:
                 return
@@ -333,3 +341,46 @@ class Coordinator:
                 logger.error("Governance polling error: %s", e)
 
             await asyncio.sleep(5.0)
+
+    async def _poll_budgets(self) -> None:
+        """Poll budget scopes from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                scopes = await self.gateway.list_budget_scopes()
+                self.store.reduce(BudgetsUpdated(scopes=[s.model_dump() for s in scopes]))
+            except Exception as e:
+                logger.error("Budgets polling error: %s", e)
+
+            await asyncio.sleep(5.0)
+
+    async def _poll_keys(self) -> None:
+        """Poll virtual keys and teams from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                # Poll Keys
+                keys = await self.gateway.list_virtual_keys()
+                self.store.reduce(VirtualKeysUpdated(keys=[k.model_dump() for k in keys]))
+
+                # Poll Teams
+                teams = await self.gateway.list_teams()
+                self.store.reduce(TeamsUpdated(teams=[t.model_dump() for t in teams]))
+            except Exception as e:
+                logger.error("Keys/Teams polling error: %s", e)
+
+            await asyncio.sleep(10.0)
+
+    async def _poll_mcp(self) -> None:
+        """Poll MCP servers and policies from the gateway."""
+        while not self._stop_event.is_set():
+            try:
+                # Poll Servers
+                servers = await self.gateway.list_mcp_servers()
+                self.store.reduce(McpServersUpdated(servers=[s.model_dump() for s in servers]))
+
+                # Poll Policies
+                policies = await self.gateway.list_mcp_policies()
+                self.store.reduce(McpPoliciesUpdated(policies=[p.model_dump() for p in policies]))
+            except Exception as e:
+                logger.error("MCP polling error: %s", e)
+
+            await asyncio.sleep(10.0)

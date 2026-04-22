@@ -70,6 +70,31 @@ class ConfigUpdated(TuiEvent):
     config: Dict[str, Any]
 
 @dataclass(frozen=True, kw_only=True)
+class BudgetsUpdated(TuiEvent):
+    """Event for budget scopes update."""
+    scopes: List[Dict[str, Any]]
+
+@dataclass(frozen=True, kw_only=True)
+class VirtualKeysUpdated(TuiEvent):
+    """Event for virtual keys update."""
+    keys: List[Dict[str, Any]]
+
+@dataclass(frozen=True, kw_only=True)
+class TeamsUpdated(TuiEvent):
+    """Event for teams update."""
+    teams: List[Dict[str, Any]]
+@dataclass(frozen=True, kw_only=True)
+class McpServersUpdated(TuiEvent):
+    """Event for MCP servers update."""
+    servers: List[Dict[str, Any]]
+
+@dataclass(frozen=True, kw_only=True)
+class McpPoliciesUpdated(TuiEvent):
+    """Event for MCP policies update."""
+    policies: List[Dict[str, Any]]
+
+
+@dataclass(frozen=True, kw_only=True)
 class GovernanceLogsUpdated(TuiEvent):
     """Event for governance logs update."""
     items: List[Dict[str, Any]]
@@ -116,6 +141,12 @@ class StateStore:
     kek_status: Optional[Dict[str, Any]] = None
     platform_config: Optional[Dict[str, Any]] = None
     governance_logs: List[Dict[str, Any]] = field(default_factory=list)
+    
+    budget_scopes: List[Dict[str, Any]] = field(default_factory=list)
+    virtual_keys: List[Dict[str, Any]] = field(default_factory=list)
+    teams: List[Dict[str, Any]] = field(default_factory=list)
+    mcp_servers: List[Dict[str, Any]] = field(default_factory=list)
+    mcp_policies: List[Dict[str, Any]] = field(default_factory=list)
 
     _seen_audit_ids: Set[str] = field(default_factory=set)
     _seen_gov_ids: Set[str] = field(default_factory=set)
@@ -187,6 +218,25 @@ class StateStore:
                     self._seen_gov_ids.add(gid)
             
             self.governance_logs = (new_items + self.governance_logs)[:500]
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, BudgetsUpdated):
+            self.budget_scopes = event.scopes
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, VirtualKeysUpdated):
+            self.virtual_keys = event.keys
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, TeamsUpdated):
+            self.teams = event.teams
+            self.gateway.last_updated_at = event.timestamp
+        elif isinstance(event, McpServersUpdated):
+            self.mcp_servers = event.servers
+            self.gateway.last_updated_at = event.timestamp
+
+        elif isinstance(event, McpPoliciesUpdated):
+            self.mcp_policies = event.policies
             self.gateway.last_updated_at = event.timestamp
 
         elif isinstance(event, ErrorOccurred):
