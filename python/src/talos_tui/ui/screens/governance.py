@@ -8,14 +8,37 @@ from textual.containers import Container
 from rich.text import Text
 
 from talos_tui.core.state import StateStore
+from .inspect import InspectorScreen
 
 
 class GovernanceViewer(Screen[None]):
     """Screen for viewing high-integrity governance execution logs."""
+    
+    BINDINGS = [
+        ("escape", "app.pop_screen", "Back"),
+        ("f5", "refresh_view", "Refresh"),
+        ("enter", "inspect_entry", "Inspect"),
+    ]
+
     def __init__(self, store: StateStore):
         super().__init__()
         self.store = store
         self._last_log_count = 0
+
+    def action_inspect_entry(self) -> None:
+        """Inspect the selected governance entry."""
+        table = self.query_one(DataTable)
+        cursor_row = getattr(table, "cursor_row", None)
+        if cursor_row is None or cursor_row < 0:
+            return
+
+        row = table.get_row_at(cursor_row)
+        # Trace ID is at index 3
+        trace_id = str(row[3].plain)
+        
+        entry = next((l for l in self.store.governance_logs if l.get("trace_id", "").startswith(trace_id)), None)
+        if entry:
+            self.app.push_screen(InspectorScreen(f"Governance {trace_id}", entry))
 
     def compose(self) -> ComposeResult:
         """Compose the screen interface."""

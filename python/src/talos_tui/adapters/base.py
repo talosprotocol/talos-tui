@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import random
 import time
@@ -156,7 +157,8 @@ class BaseHttpAdapter:
                             auth_retry_used = True
                             await self.auth_broker.invalidate(self.auth_permissions)
                             logger.info(
-                                "Authorization rejected for %s %s; refreshing scoped JWT and retrying once",
+                                "Authorization rejected for %s %s; refreshing scoped JWT "
+                                "and retrying once",
                                 method,
                                 url,
                             )
@@ -203,7 +205,15 @@ class BaseHttpAdapter:
                                     f"{self.max_response_size}",
                         )
 
-                    data = await resp.json()
+                    if resp.status == 204:
+                        return {}
+                    try:
+                        data = await resp.json(content_type=None)
+                    except (aiohttp.ContentTypeError, json.JSONDecodeError):
+                        body = await resp.text()
+                        if not body.strip():
+                            return {}
+                        data = json.loads(body)
                     # We assume JSON response is a dict for our use cases
                     return redact_value(data)  # type: ignore
 

@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import AsyncMock
 from aiohttp import ClientSession, ClientResponse
 from talos_tui.adapters.audit_http import HttpAuditAdapter
-from talos_tui.ports.errors import TuiError
 
 @pytest.mark.asyncio
 async def test_audit_list_events_success() -> None:

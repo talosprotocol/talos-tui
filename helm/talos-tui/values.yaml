@@ -10,8 +10,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 env:
-  TALOS_GATEWAY_URL: "http://gateway:8000"
-  TALOS_AUDIT_URL: "http://audit:8001"
+  TALOS_GATEWAY_URL: "http://talos-ai-gateway:8001"
+  TALOS_AUDIT_URL: "http://talos-audit-service:8002"
 
 resources:
   limits:

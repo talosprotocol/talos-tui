@@ -68,32 +68,44 @@ Footer {
 }
 
 /* --- Metric Cards (Dashboard) --- */
+Grid {
+    grid-size: 3;
+    grid-gutter: 1 2;
+    margin: 1 0;
+    height: 14;
+}
+
 MetricCard {
     background: $surface;
     border: tall $secondary-darken-2;
     padding: 1 2;
     height: 100%;
+    content-align: center middle;
 }
 
 MetricCard:hover {
     border: tall $primary;
+    background: $surface-lighten-1;
 }
 
 .metric-title {
-    color: $text-muted;
+    color: $secondary;
     text-style: bold;
+    width: 100%;
+    text-align: center;
     margin-bottom: 1;
 }
 
-.metric-value-container {
+.metric-value {
+    color: $primary;
+    text-style: bold;
     width: 100%;
-    content-align: center middle;
+    text-align: center;
 }
 
-.metric-value {
-    color: $accent;
-    text-style: bold;
-}
+.metric-value.green { color: $success; }
+.metric-value.amber { color: $warning; }
+.metric-value.red { color: $error; }
 
 /* --- Audit Screen --- */
 #audit_container {
@@ -136,12 +148,20 @@ RbacManager DataTable {
     margin-top: 1;
 }
 
-/* --- Admin Glass Panels (shared by Secrets, Config) --- */
+/* --- Admin Glass Panels (shared by Secrets, Config, RBAC, Budgets) --- */
 .panel-title {
     color: $primary;
     text-style: bold;
     margin: 1 0;
     padding-left: 1;
+}
+
+.rbac-form-panel, .mcp-form-panel {
+    background: $surface 40%;
+    border: tall $secondary-darken-2;
+    padding: 0 1;
+    margin-bottom: 1;
+    height: 10;
 }
 
 .spacer {
@@ -173,6 +193,36 @@ GlassPanel:focus-within {
 #rotation-panel {
     max-height: 10;
     border: tall $warning 40%;
+}
+
+.secret-form-row,
+.secret-actions {
+    margin-top: 1;
+    height: auto;
+}
+
+.secret-form-row Input {
+    width: 1fr;
+    margin-right: 1;
+}
+
+.secret-actions Button {
+    margin-right: 1;
+}
+
+.mcp-form-row,
+.mcp-actions {
+    margin-top: 1;
+    height: auto;
+}
+
+.mcp-form-row Input {
+    width: 1fr;
+    margin-right: 1;
+}
+
+.mcp-actions Button {
+    margin-right: 1;
 }
 
 .kek-row {
@@ -252,21 +302,12 @@ ConfigManager DataTable {
     color: $foreground;
 }
 
-.mono {
-    font-family: "Courier New", Courier, monospace;
-}
-
 .mono-small {
     color: $secondary;
 }
 
 .amber {
     color: $warning;
-}
-
-/* --- DataTable Global --- */
-DataTable {
-    zebra_stripes: true;
 }
 
 DataTable > .datatable--cursor {
@@ -276,4 +317,57 @@ DataTable > .datatable--cursor {
 
 DataTable > .datatable--hover {
     background: $surface;
+}
+
+/* --- Inspector Modal --- */
+
+#inspect-backdrop {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+#inspect-dialog {
+    width: 80%;
+    height: 80%;
+    background: $surface;
+    border: thick $primary;
+    padding: 1 2;
+}
+
+#inspect-title {
+    width: 100%;
+    text-align: center;
+    color: $primary;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.inspect-scroll {
+    height: 1fr;
+    border: solid $secondary;
+    margin-bottom: 1;
+    background: $background;
+}
+
+#inspect-content {
+    padding: 1;
+    color: $foreground;
+}
+
+#btn-inspect-close {
+    width: 100%;
+}
+
+#banners {
+    width: auto;
+    align: right middle;
+}
+
+.security-warning {
+    background: $error;
+    color: white;
+    padding: 0 1;
+    margin-left: 2;
+    text-style: bold;
+    border: tall $error-lighten-1;
 }

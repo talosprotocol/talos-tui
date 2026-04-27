@@ -11,6 +11,7 @@ from ..domain.models import (
 )
 from .base import BaseHttpAdapter
 from .token_broker import AsyncScopedJwtTokenBroker
+from ..ports.errors import TuiError
 
 
 logger = logging.getLogger(__name__)
@@ -90,6 +91,16 @@ class HttpGatewayAdapter(BaseHttpAdapter):
         items = data.get("bindings", [])
         return [RbacBinding(**b) for b in items]
 
+    async def upsert_rbac_role(self, role: Dict[str, Any]) -> RbacRole:
+        """Create or update an authority role."""
+        data = await self._request("POST", "admin/v1/rbac/roles", json_data=role)
+        return RbacRole(**data)
+
+    async def upsert_rbac_binding(self, binding: Dict[str, Any]) -> RbacBinding:
+        """Create or update an access binding."""
+        data = await self._request("POST", "admin/v1/rbac/bindings", json_data=binding)
+        return RbacBinding(**data)
+
     # Secrets Management
     async def list_secrets(self) -> Sequence[Secret]:
         """List all secrets metadata."""
@@ -99,7 +110,7 @@ class HttpGatewayAdapter(BaseHttpAdapter):
 
     async def create_secret(self, name: str, value: str) -> None:
         """Create a new secret."""
-        await self._request("POST", "admin/v1/secrets", json={"name": name, "value": value})
+        await self._request("POST", "admin/v1/secrets", json_data={"name": name, "value": value})
 
     async def delete_secret(self, name: str) -> None:
         """Delete a secret."""
@@ -112,7 +123,7 @@ class HttpGatewayAdapter(BaseHttpAdapter):
 
     async def rotate_all_secrets(self) -> RotationOperation:
         """Trigger global secret rotation."""
-        data = await self._request("POST", "admin/v1/secrets/rotate-all", json={})
+        data = await self._request("POST", "admin/v1/secrets/rotate-all", json_data={})
         return RotationOperation(**data)
 
     async def get_rotation_status(self, op_id: str) -> RotationOperation:
@@ -128,13 +139,26 @@ class HttpGatewayAdapter(BaseHttpAdapter):
 
     async def apply_config(self, config: Dict[str, Any]) -> None:
         """Apply a new platform configuration."""
-        await self._request("POST", "admin/v1/config:apply", json=config)
+        await self._request("POST", "admin/v1/config:apply", json_data=config)
 
     async def list_governance_logs(self) -> Sequence[GovernanceEntry]:
         """List high-integrity governance execution logs."""
-        data = await self._request("GET", "admin/v1/governance/logs")
+        try:
+            data = await self._request("GET", "admin/v1/governance/logs")
+        except TuiError as exc:
+            if exc.status_code == 404:
+                return []
+            raise
         items = data.get("entries", [])
         return [GovernanceEntry(**e) for e in items]
+
+    async def telemetry_stats(self, window_hours: int = 24) -> Dict[str, Any]:
+        """Fetch aggregated usage and latency telemetry."""
+        return await self._request("GET", "admin/v1/telemetry/stats", params={"window_hours": window_hours})
+
+    async def audit_stats(self, window_hours: int = 24) -> Dict[str, Any]:
+        """Fetch security and denial statistics."""
+        return await self._request("GET", "admin/v1/audit/stats", params={"window_hours": window_hours})
 
     # Budget & Key Management
     async def list_budget_scopes(self) -> Sequence[BudgetScope]:
@@ -161,9 +185,45 @@ class HttpGatewayAdapter(BaseHttpAdapter):
         items = data.get("servers", [])
         return [McpServer(**s) for s in items]
 
+    async def create_mcp_server(self, server: Dict[str, Any]) -> McpServer:
+        """Create an MCP server registry entry."""
+        data = await self._request("POST", "admin/v1/mcp/servers", json_data=server)
+        return McpServer(**data)
+
+    async def enable_mcp_server(self, server_id: str) -> McpServer:
+        """Enable an MCP server registry entry."""
+        data = await self._request("POST", f"admin/v1/mcp/servers/{server_id}:enable")
+        return McpServer(**data.get("server", data))
+
+    async def disable_mcp_server(self, server_id: str) -> McpServer:
+        """Disable an MCP server registry entry."""
+        data = await self._request("POST", f"admin/v1/mcp/servers/{server_id}:disable")
+        return McpServer(**data.get("server", data))
+
+    async def delete_mcp_server(self, server_id: str) -> None:
+        """Delete an MCP server registry entry."""
+        await self._request("DELETE", f"admin/v1/mcp/servers/{server_id}")
+
     async def list_mcp_policies(self, team_id: Optional[str] = None) -> Sequence[McpPolicy]:
         """List MCP policies, optionally filtered by team."""
         params = {"team_id": team_id} if team_id else {}
         data = await self._request("GET", "admin/v1/mcp/policies", params=params)
         items = data.get("policies", [])
         return [McpPolicy(**p) for p in items]
+
+    async def upsert_mcp_policy(self, policy: Dict[str, Any]) -> McpPolicy:
+        """Create or replace an MCP policy."""
+        payload = dict(policy)
+        enforcement_mode = str(payload.pop("enforcement_mode", "")).lower()
+        if "deny_by_default" not in payload and enforcement_mode:
+            payload["deny_by_default"] = enforcement_mode not in {
+                "permissive",
+                "allow",
+                "allowlist_off",
+            }
+        data = await self._request("POST", "admin/v1/mcp/policies", json_data=payload)
+        return McpPolicy(**data)
+
+    async def delete_mcp_policy(self, policy_id: str) -> None:
+        """Delete an MCP policy."""
+        await self._request("DELETE", f"admin/v1/mcp/policies/{policy_id}")

@@ -23,18 +23,18 @@ RUN useradd -m -u 1000 talos && \
 
 USER talos
 
+# Ensure user-installed console scripts are available during and after install.
+ENV PATH="/home/talos/.local/bin:${PATH}"
+
 # Copy artifact from builder
 COPY --from=builder --chown=talos:talos /app/dist/*.whl /app/dist/
 
 # Install application
 RUN pip install --no-cache-dir /app/dist/*.whl
 
-# Ensure local bin is in PATH
-ENV PATH="/home/talos/.local/bin:${PATH}"
-
 # Default configuration env vars
-ENV TALOS_GATEWAY_URL="http://gateway:8000"
-ENV TALOS_AUDIT_URL="http://audit:8001"
+ENV TALOS_GATEWAY_URL="http://talos-ingress:10000"
+ENV TALOS_AUDIT_URL="http://talos-audit-service:8001"
 
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 

@@ -30,11 +30,17 @@ Ensure you have a running Gateway and Audit service.
 talos-tui
 ```
 
+By default the TUI targets the active local API stack:
+
+- AI Gateway: `http://127.0.0.1:8001`
+- Audit Service: `http://127.0.0.1:8002`
+
 ### Custom Endpoints
 
 ```bash
-export TALOS_GATEWAY_URL="http://gateway:8000"
-export TALOS_AUDIT_URL="http://auditService:8001"
+export TALOS_GATEWAY_URL="http://127.0.0.1:8001"
+export TALOS_AUDIT_URL="http://127.0.0.1:8002"
+export TALOS_TUI_ADMIN_SECRET="dev-admin-secret"
 talos-tui
 ```
 
@@ -98,8 +104,9 @@ Run container:
 
 ```bash
 docker run -it --rm \
-  -e TALOS_GATEWAY_URL="http://host.docker.internal:8000" \
-  -e TALOS_AUDIT_URL="http://host.docker.internal:8001" \
+  -e TALOS_GATEWAY_URL="http://host.docker.internal:8001" \
+  -e TALOS_AUDIT_URL="http://host.docker.internal:8002" \
+  -e TALOS_TUI_ADMIN_SECRET="dev-admin-secret" \
   talos-tui
 ```
 
@@ -109,7 +116,8 @@ Install the chart:
 
 ```bash
 helm install talos-tui tools/talos-tui/helm/talos-tui \
-  --set env.TALOS_GATEWAY_URL="http://gateway-service:8000"
+  --set env.TALOS_GATEWAY_URL="http://talos-ai-gateway:8001" \
+  --set env.TALOS_AUDIT_URL="http://talos-audit-service:8002"
 ```
 
 To access the TUI in the cluster:

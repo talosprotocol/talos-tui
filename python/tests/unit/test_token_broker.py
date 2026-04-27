@@ -1,6 +1,6 @@
 import pytest
 from aiohttp import ClientResponse, ClientSession
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 from talos_tui.adapters.base import BaseHttpAdapter
 from talos_tui.adapters.token_broker import AsyncScopedJwtTokenBroker

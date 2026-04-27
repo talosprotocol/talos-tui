@@ -5,6 +5,11 @@ import os
 import logging
 from pathlib import Path
 from typing import Optional, Any
+from dotenv import load_dotenv
+
+# Load .env from root or current dir
+load_dotenv()
+load_dotenv(Path(__file__).parent.parent.parent.parent.parent / ".env")
 
 from textual.app import App
 from textual.binding import Binding
@@ -28,6 +33,8 @@ from talos_tui.ui.screens.config import ConfigManager
 from talos_tui.ui.screens.governance import GovernanceViewer
 from talos_tui.ui.screens.startup import StartupScreen
 from talos_tui.ui.screens.budgets import BudgetManager
+from talos_tui.ui.screens.mcp import McpManager
+from talos_tui.ui.screens.api_console import ApiConsole
 
 # Configure logging early and REDIRECT to file
 for handler in logging.root.handlers[:]:
@@ -42,8 +49,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-GATEWAY_URL = os.getenv("TALOS_GATEWAY_URL", "http://localhost:8000")
-AUDIT_URL = os.getenv("TALOS_AUDIT_URL", "http://localhost:8001")
+GATEWAY_URL = os.getenv("TALOS_GATEWAY_URL", "http://127.0.0.1:8000")
+AUDIT_URL = os.getenv("TALOS_AUDIT_URL", "http://127.0.0.1:8001")
 USE_MOCK = os.getenv("TALOS_TUI_MOCK", "0") == "1"
 CONTRACTS_ROOT = (
     Path(__file__).parent.parent.parent.parent.parent / "contracts"
@@ -81,6 +88,8 @@ class TalosTuiApp(App[None]):
         Binding("c", "show_config", "Config"),
         Binding("g", "show_governance", "Gov"),
         Binding("b", "show_budgets", "Budgets"),
+        Binding("m", "show_mcp", "MCP"),
+        Binding("x", "show_api_console", "API"),
         Binding("q", "quit", "Quit"),
     ]
 
@@ -93,6 +102,7 @@ class TalosTuiApp(App[None]):
 
         self.gateway: Any = None
         self.audit: Any = None
+        self._session: Any = None
 
         self.coordinator: Optional[Coordinator] = None
         self.dashboard_screen = StatusDashboard(self.store)
@@ -102,10 +112,8 @@ class TalosTuiApp(App[None]):
         self.config_screen = ConfigManager(self.store)
         self.governance_screen = GovernanceViewer(self.store)
         self.budgets_screen = BudgetManager(self.store)
-
-        if not USE_MOCK:
-            # Type hint for mypy, though we import aiohttp later
-            self._session: Any = None
+        self.mcp_screen = McpManager(self.store)
+        self.api_console_screen = ApiConsole()
 
     async def on_mount(self) -> None:
         """Initialize theme and start coordinator."""
@@ -162,6 +170,8 @@ class TalosTuiApp(App[None]):
         self.install_screen(self.config_screen, name="config")
         self.install_screen(self.governance_screen, name="governance")
         self.install_screen(self.budgets_screen, name="budgets")
+        self.install_screen(self.mcp_screen, name="mcp")
+        self.install_screen(self.api_console_screen, name="api-console")
 
         self.push_screen(StartupScreen(self.store))
         await self.coordinator.start()
@@ -178,7 +188,6 @@ class TalosTuiApp(App[None]):
             self.screen.__class__.__name__ == "StartupScreen"
         ):
             logger.info("Transitioning to dashboard")
-            self.pop_screen()
             self.switch_screen("dashboard")
 
     def action_show_dashboard(self) -> None:
@@ -237,11 +246,27 @@ class TalosTuiApp(App[None]):
         ):
             self.switch_screen("budgets")
 
+    def action_show_mcp(self) -> None:
+        """Switch to MCP screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("mcp")
+
+    def action_show_api_console(self) -> None:
+        """Switch to API console screen."""
+        if self.coordinator and self.coordinator.state in (
+            TuiState.RUNNING,
+            TuiState.DEGRADED,
+        ):
+            self.switch_screen("api-console")
+
     async def on_unmount(self) -> None:
         """Cleanup resources on exit."""
         if self.coordinator:
             await self.coordinator.stop()
-        if not USE_MOCK and hasattr(self, "_session"):
+        if not USE_MOCK and self._session is not None:
             await self._session.close()
 
 

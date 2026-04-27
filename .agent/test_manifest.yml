@@ -1,0 +1,13 @@
+repo_id: "tools-talos-tui"
+repo_root: "."
+commands:
+  test_entrypoint: "scripts/test.sh"
+coverage:
+  enabled: false  # TODO: Enable once Talos-wide coverage thresholds are agreed for the TUI.
+  format: "cobertura"
+  report_path: "artifacts/coverage/coverage.xml"
+  thresholds:
+    line: 0.00
+    branch: 0.00
+ci:
+  default: ["--ci"]

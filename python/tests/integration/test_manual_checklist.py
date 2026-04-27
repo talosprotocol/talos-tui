@@ -1,6 +1,5 @@
 import pytest
 import aiohttp
-import asyncio
 from unittest.mock import patch
 from pytest import importorskip
 
@@ -50,7 +49,7 @@ async def test_500_transient_backoff_and_retry() -> None:
             # Patch sleep to avoid waiting
             with patch("asyncio.sleep", return_value=None):
                 health = await adapter.get_health()
-                assert health.ok() is True
+                assert health.ok is True
 
 
 @pytest.mark.asyncio

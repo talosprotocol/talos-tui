@@ -8,7 +8,9 @@ from typing import Any, Dict, Set, Coroutine
 
 from .state import (
     AuditEventsReceived,
+    HealthUpdated,
     ErrorOccurred,
+    MetricsUpdated,
     RbacRolesUpdated,
     RbacBindingsUpdated,
     SecretsUpdated,
@@ -19,7 +21,9 @@ from .state import (
     VirtualKeysUpdated,
     TeamsUpdated,
     McpServersUpdated,
-    McpPoliciesUpdated
+    McpPoliciesUpdated,
+    StateStore,
+    VersionUpdated,
 )
 from ..ports.errors import TuiError
 

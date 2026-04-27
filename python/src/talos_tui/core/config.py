@@ -60,7 +60,17 @@ class TuiAuthConfig:
         )
         gateway_permissions = _split_csv(
             os.getenv("TALOS_TUI_GATEWAY_PERMISSIONS")
-        ) or ("llm.read", "mcp.read", "audit.read")
+        ) or (
+            "audit.read",
+            "keys.read",
+            "keys.write",
+            "llm.admin",
+            "llm.read",
+            "mcp.admin",
+            "mcp.read",
+            "platform.admin",
+            "resource.delete",
+        )
         audit_permissions = _split_csv(
             os.getenv("TALOS_TUI_AUDIT_PERMISSIONS")
         ) or ("audit.read",)

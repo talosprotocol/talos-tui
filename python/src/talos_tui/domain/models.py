@@ -2,7 +2,14 @@
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field, ConfigDict, AliasChoices
+from pydantic import (
+    BaseModel,
+    Field,
+    ConfigDict,
+    AliasChoices,
+    field_validator,
+    model_validator,
+)
 
 
 class ViewModel(BaseModel):
@@ -40,6 +47,7 @@ class MetricsSummary(ViewModel):
     latency_p95_ms: float = 0.0
     connected_peers: int = 0
     active_sessions: int = 0
+    auth_success_rate: float = 1.0
 
 
 class Peer(ViewModel):
@@ -63,7 +71,10 @@ class AuditEvent(ViewModel):
     event_id: str
     ts: str = Field(validation_alias=AliasChoices("ts", "timestamp"))
     request_id: Optional[str] = None
-    surface_id: Optional[str] = Field(default=None, validation_alias=AliasChoices("surface_id", "action"))
+    surface_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("surface_id", "action"),
+    )
     outcome: Optional[str] = Field(default=None, validation_alias=AliasChoices("outcome", "status"))
     
     principal: Dict[str, Any] = Field(default_factory=dict)
@@ -72,7 +83,10 @@ class AuditEvent(ViewModel):
     schema_id: str = "talos.audit_event"
     schema_version: str = "v1"
     
-    meta: Dict[str, Any] = Field(default_factory=dict, validation_alias=AliasChoices("meta", "details", "payload"))
+    meta: Dict[str, Any] = Field(
+        default_factory=dict,
+        validation_alias=AliasChoices("meta", "details", "payload"),
+    )
     resource: Optional[Dict[str, Any]] = None
     event_hash: Optional[str] = None
 
@@ -214,14 +228,53 @@ class McpServer(ViewModel):
     id: str
     name: str = ""
     endpoint: str = ""
+    transport: str = ""
+    command: str = ""
+    args: List[str] = Field(default_factory=list)
     enabled: bool = True
     version: int = 1
     created_at: Optional[str] = None
+
+    @field_validator("endpoint", "transport", "command", mode="before")
+    @classmethod
+    def _nullable_string(cls, value: Any) -> str:
+        return "" if value is None else str(value)
+
+    @field_validator("args", mode="before")
+    @classmethod
+    def _nullable_args(cls, value: Any) -> List[str]:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return [str(item) for item in value]
+        return [str(value)]
 
 class McpPolicy(ViewModel):
     """Model for an MCP Policy."""
     id: str
     team_id: str
     allowed_servers: List[str] = Field(default_factory=list)
+    allowed_tools: List[str] = Field(default_factory=list)
+    deny_by_default: bool = True
     enforcement_mode: str = "strict"
     created_at: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_enforcement_mode(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "enforcement_mode" not in data:
+            deny_by_default = data.get("deny_by_default", True)
+            data = dict(data)
+            data["enforcement_mode"] = "strict" if deny_by_default else "permissive"
+        return data
+
+    @field_validator("allowed_servers", "allowed_tools", mode="before")
+    @classmethod
+    def _nullable_string_list(cls, value: Any) -> List[str]:
+        if value is None:
+            return []
+        if isinstance(value, dict):
+            return [str(key) for key in value]
+        if isinstance(value, list):
+            return [str(item) for item in value]
+        return [str(value)]

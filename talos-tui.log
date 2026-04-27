@@ -1,0 +1,45 @@
+2026-04-25 16:12:00,982 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 16:12:00,982 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 16:12:00,996 [WARNING] talos_tui.core.coordinator: Handshake error for gateway: Cannot connect to host 127.0.0.1:8000 ssl:default [Connect call failed ('127.0.0.1', 8000)]
+2026-04-25 16:12:01,710 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> STOPPING
+2026-04-25 16:12:01,711 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-04-25 16:12:22,968 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 16:12:22,968 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 16:12:22,977 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> HANDSHAKE_AUDIT
+2026-04-25 16:12:23,691 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_AUDIT -> STOPPING
+2026-04-25 16:12:23,692 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-04-25 16:45:02,178 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 16:45:02,179 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 16:45:02,187 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> HANDSHAKE_AUDIT
+2026-04-25 16:45:02,896 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_AUDIT -> STOPPING
+2026-04-25 16:45:02,896 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-04-25 16:55:53,933 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 16:55:53,933 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 16:55:53,942 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> HANDSHAKE_AUDIT
+2026-04-25 16:55:54,661 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_AUDIT -> STOPPING
+2026-04-25 16:55:54,661 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-04-25 16:56:22,880 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 16:56:22,880 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 16:56:22,888 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> HANDSHAKE_AUDIT
+2026-04-25 16:56:23,889 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_AUDIT -> RUNNING
+2026-04-25 16:56:24,389 [INFO] talos_tui.app: Transitioning to dashboard
+2026-04-25 16:56:24,891 [ERROR] talos_tui.core.coordinator: Audit polling error: MockAuditAdapter.list_events() missing 1 required positional argument: 'before'
+2026-04-25 16:56:25,649 [INFO] talos_tui.core.coordinator: Transition: RUNNING -> STOPPING
+2026-04-25 16:56:25,649 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-04-25 17:01:56,025 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 17:01:56,025 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 17:01:56,033 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> HANDSHAKE_AUDIT
+2026-04-25 17:01:57,034 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_AUDIT -> RUNNING
+2026-04-25 17:01:57,534 [INFO] talos_tui.app: Transitioning to dashboard
+2026-04-25 17:01:58,035 [ERROR] talos_tui.core.coordinator: Audit polling error: MockAuditAdapter.list_events() missing 1 required positional argument: 'before'
+2026-04-25 17:01:59,294 [INFO] talos_tui.core.coordinator: Transition: RUNNING -> STOPPING
+2026-04-25 17:01:59,294 [INFO] talos_tui.core.coordinator: Coordinator stopped.
+2026-04-25 17:19:06,176 [INFO] talos_tui.core.coordinator: Coordinator starting...
+2026-04-25 17:19:06,176 [INFO] talos_tui.core.coordinator: Transition: BOOT -> HANDSHAKE_GATEWAY
+2026-04-25 17:19:06,185 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_GATEWAY -> HANDSHAKE_AUDIT
+2026-04-25 17:19:07,186 [INFO] talos_tui.core.coordinator: Transition: HANDSHAKE_AUDIT -> RUNNING
+2026-04-25 17:19:07,686 [INFO] talos_tui.app: Transitioning to dashboard
+2026-04-25 17:19:08,186 [ERROR] talos_tui.core.coordinator: Audit polling error: MockAuditAdapter.list_events() missing 1 required positional argument: 'before'
+2026-04-25 17:19:10,187 [ERROR] talos_tui.core.coordinator: Audit polling error: MockAuditAdapter.list_events() missing 1 required positional argument: 'before'
+2026-04-25 17:19:11,608 [INFO] talos_tui.core.coordinator: Transition: RUNNING -> STOPPING
+2026-04-25 17:19:11,608 [INFO] talos_tui.core.coordinator: Coordinator stopped.

@@ -49,11 +49,11 @@ def test_audit_refresh_view() -> None:
     # Type: login (OK)
     # ID: 1
     call_args = mock_table.add_row.call_args[0]
-    # We check string contents implicitly since they are Rich Text objects
+    # ID is now at index 4 because of the new Proof column at index 3
     assert "2023" in str(call_args[1])
     assert "login" in str(call_args[2])
-    assert "1" in str(call_args[3])
-
+    assert "UNVERIFIED" in str(call_args[3])
+    assert "1" in str(call_args[4])
 
 def test_startup_screen_buttons() -> None:
     from talos_tui.ui.screens.startup import StartupScreen

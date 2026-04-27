@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import json
 from textual.app import ComposeResult
-from textual.containers import Vertical, Horizontal, Container, ScrollableContainer
+from textual.containers import Vertical, Container, ScrollableContainer
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static, Label, DataTable, TabbedContent, TabPane
+from textual.widgets import Header, Footer, Static, DataTable, TabbedContent, TabPane
 
 from ...core.state import StateStore
 
@@ -153,6 +153,22 @@ class ConfigManager(Screen):
         # --- Raw JSON Tab ---
         formatted = json.dumps(config, indent=2)
         self.query_one("#config-json", Static).update(formatted)
+
+    async def action_refresh_data(self) -> None:
+        """Refresh the configuration snapshot immediately from the gateway."""
+        adapter = getattr(self.app, "gateway", None)
+        if not adapter:
+            self.notify("Gateway not connected.", severity="error")
+            return
+        try:
+            config = await adapter.export_config()
+            self.store.platform_config = (
+                config.model_dump() if hasattr(config, "model_dump") else config
+            )
+            self.update_view()
+            self.notify("Configuration refreshed.", title="Config")
+        except Exception as e:
+            self.notify(f"Refresh failed: {e}", severity="error")
 
     def action_export_json(self) -> None:
         """Export current config to a file."""

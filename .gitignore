@@ -49,4 +49,5 @@ dmypy.json
 .textual.log
 
 # Artifacts
+artifacts/
 python/artifacts/
