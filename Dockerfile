@@ -1,5 +1,5 @@
 # Build Stage
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.14-slim-bookworm AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY python/ .
 RUN python -m build
 
 # Runtime Stage
-FROM python:3.11-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 WORKDIR /app
 
