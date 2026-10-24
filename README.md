@@ -12,6 +12,13 @@ A terminal-based user interface for monitoring and inspecting the Talos Protocol
 
 ## Installation
 
+### Via Homebrew (macOS & Linux)
+
+```bash
+brew tap talosprotocol/tap
+brew install talos-tui
+```
+
 ### From Source
 
 ```bash
